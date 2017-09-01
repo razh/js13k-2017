@@ -1,0 +1,11 @@
+[ignore]
+.*/node_modules/.*
+
+[include]
+
+[libs]
+
+[options]
+module.name_mapper.extension='glsl' -> '<PROJECT_ROOT>/src/shaders/GLSLFlowStub.js.flow'
+
+suppress_comment=\\(.\\|\n\\)*\\$ExpectError

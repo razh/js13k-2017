@@ -1,6 +1,7 @@
 // @flow
 
 import type { BufferGeometry } from './bufferGeom';
+import type { Entity } from './Entity';
 import type { Mesh } from './mesh';
 
 import { boxGeom_create } from './boxGeom';
@@ -12,6 +13,7 @@ import {
 } from './camera';
 import { controls_create } from './controls';
 import { light_create } from './directionalLight';
+import { is_entity, entity_update } from './entity';
 import { mat4_getInverse, mat4_multiplyMatrices } from './mat4';
 import { material_create } from './material';
 import { mesh_create } from './mesh';
@@ -99,7 +101,29 @@ object3d_add(
   ),
 );
 
+var dt = 1 / 60;
+var accumulatedTime;
+var previousTime;
+
 var update = () => {
+  var time = (performance.now() || 0) * 1e-3;
+  if (!previousTime) {
+    previousTime = time;
+  }
+
+  var frameTime = Math.min(time - previousTime, 0.1);
+  accumulatedTime += frameTime;
+  previousTime = time;
+
+  while (accumulatedTime >= dt) {
+    object3d_traverse(scene, object => {
+      if (is_entity(object)) {
+        entity_update(((object: any): Entity), dt);
+      }
+    });
+
+    accumulatedTime -= dt;
+  }
 };
 
 var bufferGeomBuffers = new WeakMap();

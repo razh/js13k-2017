@@ -31,6 +31,21 @@ export var vec3_setScalar = (v: Vector3, scalar: number) => {
   return v;
 };
 
+export var vec3_setX = (v: Vector3, x: number) => {
+  v.x = x;
+  return v;
+};
+
+export var vec3_setY = (v: Vector3, y: number) => {
+  v.y = y;
+  return v;
+};
+
+export var vec3_setZ = (v: Vector3, z: number) => {
+  v.z = z;
+  return v;
+};
+
 export var vec3_clone = (v: Vector3) => {
   return vec3_create(v.x, v.y, v.z);
 };

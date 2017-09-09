@@ -34,6 +34,14 @@ export var entity_has = (entity: Entity, component: Component) => {
   return entity.components.includes(component);
 };
 
+export var entity_find = (entity: Entity, predicate: () => boolean): ?Component => {
+  return entity.components.find(predicate);
+};
+
+export var entity_filter = (entity: Entity, predicate: () => boolean): Component[] => {
+  return entity.components.filter(predicate);
+};
+
 export var entity_remove = (entity: Entity, ...components: Component[]) => {
   components.map(component => {
     var index = entity.components.indexOf(component);

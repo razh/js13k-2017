@@ -16,6 +16,7 @@ import {
   vec3_multiply,
 } from './vec3';
 import { face3_create, face3_clone } from './face3';
+import { rearg } from './utils';
 
 export var geom_create = (): Geometry => {
   return {
@@ -93,3 +94,6 @@ export var geom_clone = (geom: Geometry) => {
   clone.faces = geom.faces.map(face3_clone);
   return clone;
 };
+
+export var translate = rearg(geom_translate);
+export var scale = rearg(geom_scale);

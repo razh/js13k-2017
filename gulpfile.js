@@ -102,12 +102,14 @@ gulp.task('rollup', () => {
     }));
 });
 
-gulp.task('js', gulp.series('rollup', function js() {
+gulp.task('uglify', () => {
   return gulp.src('build/bundle.js')
     .pipe($.if(production, uglify()))
     .pipe(gulp.dest('dist'))
     .pipe(browserSync.stream());
-}));
+});
+
+gulp.task('js', gulp.series('rollup', 'uglify'));
 
 gulp.task('html', () => {
   return gulp.src('./index.html')

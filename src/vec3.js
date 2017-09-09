@@ -210,6 +210,13 @@ export var vec3_setFromMatrixPosition = (v: Vector3, m: Matrix4) => {
   return v;
 };
 
+export var vec3_fromArray = (v: Vector3, array: number[]) => {
+  v.x = array[0];
+  v.y = array[1];
+  v.z = array[2];
+  return v;
+};
+
 export var vec3_X = vec3_create(1, 0, 0);
 export var vec3_Y = vec3_create(0, 1, 0);
 export var vec3_Z = vec3_create(0, 0, 1);

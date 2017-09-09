@@ -5,6 +5,7 @@ import boxIndices from './boxIndices';
 import {
   vec3_create,
   vec3_add,
+  vec3_copy,
   vec3_divideScalar,
   vec3_fromArray,
   vec3_multiply,
@@ -60,7 +61,9 @@ var transformBoxVertices = (() => {
   var vector = vec3_create();
 
   return (method, identity = vec3_create()) => {
-    var baseTransform = (geom, indices, delta, ...args) => {
+    var baseTransform = (geom, key, delta, ...args) => {
+      var indices = boxIndices[key];
+
       if (Array.isArray(delta)) {
         vec3_fromArray(vector, delta);
       } else if (typeof delta === 'object') {
@@ -93,8 +96,47 @@ var transformBoxVertices = (() => {
 export var translateVertices = rearg(transformBoxVertices(vec3_add));
 export var scaleVertices = rearg(transformBoxVertices(vec3_multiply, vec3_create(1, 1, 1)));
 
+var transformAxisBoxVertices = (() => {
+  var vector = vec3_create();
+
+  return (method, identity = vec3_create()) => {
+    return axis => {
+      var baseTransformAxis = (geom, key, delta = identity[axis], ...args) => {
+        var indices = boxIndices[key];
+
+        vec3_copy(vector, identity);
+        vector[axis] = delta;
+
+        indices.map(index => method(geom.vertices[index], vector, ...args));
+        return geom;
+      };
+
+      return (geom, vectors, ...args) => {
+        if (typeof vectors === 'string') {
+          var delta = args.shift();
+          return baseTransformAxis(geom, vectors, delta, ...args);
+        } else if (typeof vectors === 'object') {
+          Object.keys(vectors).map(key => {
+            var delta = vectors[key];
+            baseTransformAxis(geom, key, delta, ...args);
+          });
+        }
+
+        return geom;
+      };
+    };
+  };
+})();
+
+var translateAxisBoxVertices = transformAxisBoxVertices(vec3_add);
+
+export var translateXVertices = rearg(translateAxisBoxVertices('x'));
+export var translateYVertices = rearg(translateAxisBoxVertices('y'));
+export var translateZVertices = rearg(translateAxisBoxVertices('z'));
+
 var callBoxVertices = method => {
-  var baseCall = (geom, indices, ...args) => {
+  var baseCall = (geom, key, ...args) => {
+    var indices = boxIndices[key];
     indices.map(index => method(geom.vertices[index], ...args));
     return geom;
   };

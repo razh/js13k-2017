@@ -50,13 +50,6 @@ export var vec3_clone = (v: Vector3) => {
   return vec3_create(v.x, v.y, v.z);
 };
 
-export var vec3_copy = (a: Vector3, b: Vector3) => {
-  a.x = b.x;
-  a.y = b.y;
-  a.z = b.z;
-  return a;
-};
-
 export var vec3_add = (a: Vector3, b: Vector3) => {
   a.x += b.x;
   a.y += b.y;

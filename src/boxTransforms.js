@@ -5,7 +5,6 @@ import boxIndices from './boxIndices';
 import {
   vec3_create,
   vec3_add,
-  vec3_copy,
   vec3_divideScalar,
   vec3_fromArray,
   vec3_multiply,
@@ -104,7 +103,7 @@ var transformAxisBoxVertices = (() => {
       var baseTransformAxis = (geom, key, delta = identity[axis], ...args) => {
         var indices = boxIndices[key];
 
-        vec3_copy(vector, identity);
+        Object.assign(vector, identity);
         vector[axis] = delta;
 
         indices.map(index => method(geom.vertices[index], vector, ...args));

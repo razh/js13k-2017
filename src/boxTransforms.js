@@ -81,8 +81,8 @@ var transformBoxVertices = (() => {
   };
 })();
 
-export var translateVertices = rearg(transformBoxVertices(vec3_add));
-export var scaleVertices = rearg(transformBoxVertices(vec3_multiply, vec3_create(1, 1, 1)));
+export var $translate = rearg(transformBoxVertices(vec3_add));
+export var $scale = rearg(transformBoxVertices(vec3_multiply, vec3_create(1, 1, 1)));
 
 var transformAxisBoxVertices = (() => {
   var vector = vec3_create();
@@ -108,9 +108,9 @@ var transformAxisBoxVertices = (() => {
 
 var translateAxisBoxVertices = transformAxisBoxVertices(vec3_add);
 
-export var translateXVertices = rearg(translateAxisBoxVertices('x'));
-export var translateYVertices = rearg(translateAxisBoxVertices('y'));
-export var translateZVertices = rearg(translateAxisBoxVertices('z'));
+export var $translateX = rearg(translateAxisBoxVertices('x'));
+export var $translateY = rearg(translateAxisBoxVertices('y'));
+export var $translateZ = rearg(translateAxisBoxVertices('z'));
 
 var callBoxVertices = method => {
   return (geom, vectors) => {
@@ -124,7 +124,7 @@ var callBoxVertices = method => {
    };
 };
 
-export var set = rearg(callBoxVertices(vec3_fromArray));
-export var setX = rearg(callBoxVertices(vec3_setX));
-export var setY = rearg(callBoxVertices(vec3_setY));
-export var setZ = rearg(callBoxVertices(vec3_setZ));
+export var $set = rearg(callBoxVertices(vec3_fromArray));
+export var $setX = rearg(callBoxVertices(vec3_setX));
+export var $setY = rearg(callBoxVertices(vec3_setY));
+export var $setZ = rearg(callBoxVertices(vec3_setZ));

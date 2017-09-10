@@ -1,5 +1,5 @@
 import { boxGeom_create } from './boxGeom';
-import { translateYVertices } from './boxTransforms';
+import { $translateY } from './boxTransforms';
 import { translate } from './geom';
 import { vec3_create } from './vec3';
 import { compose } from './utils';
@@ -15,7 +15,7 @@ export var terrain_create = (map, heights, scale = vec3_create(1, 1, 1)) => {
         geoms.push(
           compose(
             translate(j * scale.x, 0, i * scale.z),
-            translateYVertices({
+            $translateY({
               nx_py_nz: height(char),
               px_py_nz: height(row[j + 1]),
               nx_py_pz: height(map[i + 1][j]),

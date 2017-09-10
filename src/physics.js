@@ -9,7 +9,6 @@ import {
   component_create,
   entity_add,
   entity_filter,
-  is_entity,
 } from './entity';
 import { object3d_traverse } from './object3d';
 import {
@@ -40,9 +39,7 @@ export var physics_bodies = object => {
   var bodies = [];
 
   object3d_traverse(object, node => {
-    if (is_entity(node)) {
-      bodies.push(...entity_filter(node, is_physics_component));
-    }
+    bodies.push(...entity_filter(node, is_physics_component));
   });
 
   return bodies;

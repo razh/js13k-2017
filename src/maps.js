@@ -1,6 +1,6 @@
 import { boxGeom_create } from './boxGeom';
 import { camera_lookAt } from './camera';
-import { entity_create, component_create, entity_add } from './entity';
+import { component_create, entity_add } from './entity';
 import { keys_create } from './keys';
 import { material_create } from './material';
 import { light_create } from './directionalLight';
@@ -13,7 +13,7 @@ import {
 import { vec3_create, vec3_normalize, vec3_set } from './vec3';
 
 export var createBasicMap = (scene, camera) => {
-  var map = entity_create(object3d_create());
+  var map = object3d_create();
 
   object3d_add(scene, map);
 

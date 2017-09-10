@@ -1,12 +1,3 @@
-export var entity_create = object => {
-  return Object.assign(
-    {
-      components: [],
-    },
-    object,
-  );
-};
-
 export var component_create = options => {
   return Object.assign(
     {
@@ -57,5 +48,3 @@ export var entity_remove = (entity, ...components) => {
 export var entity_update = (entity, ...args) => {
   entity.components.map(component => component.update(...args));
 };
-
-export var is_entity = object => object.components;

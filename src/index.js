@@ -3,7 +3,7 @@
 import { bufferGeom_fromGeom, bufferGeom_create } from './bufferGeom';
 import { camera_create, camera_updateProjectionMatrix } from './camera';
 import { controls_create } from './controls';
-import { is_entity, entity_update } from './entity';
+import { entity_update } from './entity';
 import { createBasicMap } from './maps';
 import { mat4_getInverse, mat4_multiplyMatrices } from './mat4';
 import {
@@ -82,9 +82,7 @@ var update = () => {
 
   while (accumulatedTime >= dt) {
     object3d_traverse(scene, object => {
-      if (is_entity(object)) {
-        entity_update(object, dt);
-      }
+      entity_update(object, dt);
     });
 
     accumulatedTime -= dt;

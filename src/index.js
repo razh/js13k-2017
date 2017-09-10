@@ -74,7 +74,7 @@ var attributes = getAttributeLocations(gl, program);
 var uniforms = getUniformLocations(gl, program);
 
 var dt = 1 / 60;
-var accumulatedTime;
+var accumulatedTime = 0;
 var previousTime;
 
 var update = () => {

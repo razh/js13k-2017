@@ -1,6 +1,8 @@
 import { boxGeom_create } from './boxGeom';
 import { camera_lookAt } from './camera';
+import { defaultColors } from './boxColors';
 import { component_create, entity_add } from './entity';
+import { geom_merge } from './geom';
 import { keys_create } from './keys';
 import { material_create } from './material';
 import { light_create } from './directionalLight';
@@ -18,6 +20,7 @@ import {
   BODY_STATIC,
   BODY_DYNAMIC,
 } from'./physics';
+import { terrain_create } from './terrain';
 import { vec3_create, vec3_normalize, vec3_set } from './vec3';
 
 export var createBasicMap = (scene, camera) => {
@@ -78,9 +81,31 @@ export var createBasicMap = (scene, camera) => {
     ),
   );
 
+  var terrainMaterial = material_create();
+  terrainMaterial.shininess = 5;
+
+  object3d_add(
+    map,
+    mesh_create(
+      terrain_create(
+        [
+          '02000 ',
+          '01110 ',
+          '00000 ',
+          '      ',
+        ],
+        '012',
+        vec3_create(12, 1, 12),
+      )
+        .map(defaultColors([0, 0.5, 0.2]))
+        .reduce(geom_merge),
+      terrainMaterial,
+    ),
+  );
+
   var ambient = vec3_create(0.5, 0.5, 0.5);
 
-  var light = light_create(vec3_create(1, 1, 1));
+  var light = light_create(vec3_create(1, 1, 1), 3);
   vec3_set(light.position, 128, 48, 0);
 
   var directionalLights = [

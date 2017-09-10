@@ -1,4 +1,5 @@
 /* eslint-env node */
+/* eslint-disable func-style */
 
 'use strict';
 
@@ -7,7 +8,6 @@ const $ = require('gulp-load-plugins')();
 
 const browserSync = require('browser-sync').create();
 const del = require('del');
-const flow = require('rollup-plugin-flow');
 const rollup = require('rollup').rollup;
 
 const composer = require('gulp-uglify/composer');
@@ -94,7 +94,7 @@ function glsl() {
 gulp.task('rollup', () => {
   return rollup({
     input: 'src/index.js',
-    plugins: [flow(), glsl()],
+    plugins: [glsl()],
   })
     .then(bundle => bundle.write({
       file: 'build/bundle.js',

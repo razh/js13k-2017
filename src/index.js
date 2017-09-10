@@ -35,24 +35,23 @@ import frag from './shaders/phong_frag.glsl';
 
 var gl = c.getContext('webgl');
 
-gl.clearColor(0, 0, 0, 0);
 gl.enable(gl.DEPTH_TEST);
 gl.enable(gl.CULL_FACE);
 gl.getExtension('OES_standard_derivatives');
 
 var running = false;
 
-// Options
-var fogColor = vec3_create(1, 1, 1);
-var fogNear = 1;
-var fogFar = 1000;
-
 // Scene
 var scene = object3d_create();
+scene.fogColor = vec3_create(1, 1, 1);
+scene.fogNear = 1;
+scene.fogFar = 1000;
+
+// Camera
 var camera = camera_create();
 pointerLock_create(controls_create(camera), c);
 
-var lights = createBasicMap(scene, camera);
+var lights = createBasicMap(gl, scene, camera);
 
 // Shader
 var program = createShaderProgram(
@@ -113,9 +112,9 @@ var bufferGeoms = new WeakMap();
 var renderMesh = mesh => {
   var { geometry, material } = mesh;
 
-  setVec3Uniform(gl, uniforms.fogColor, fogColor);
-  setFloatUniform(gl, uniforms.fogNear, fogNear);
-  setFloatUniform(gl, uniforms.floatFar, fogFar);
+  setVec3Uniform(gl, uniforms.fogColor, scene.fogColor);
+  setFloatUniform(gl, uniforms.fogNear, scene.fogNear);
+  setFloatUniform(gl, uniforms.fogFar, scene.fogFar);
 
   setVec3Uniform(gl, uniforms.diffuse, material.color);
   setVec3Uniform(gl, uniforms.specular, material.specular);

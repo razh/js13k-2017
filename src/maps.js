@@ -23,7 +23,9 @@ import {
 import { terrain_create } from './terrain';
 import { vec3_create, vec3_normalize, vec3_set } from './vec3';
 
-export var createBasicMap = (scene, camera) => {
+export var createBasicMap = (gl, scene, camera) => {
+  gl.clearColor(0.7, 0.8, 0.9, 1);
+
   var map = object3d_create();
 
   object3d_add(scene, map);
@@ -82,7 +84,7 @@ export var createBasicMap = (scene, camera) => {
   );
 
   var terrainMaterial = material_create();
-  terrainMaterial.shininess = 5;
+  terrainMaterial.shininess = 2;
 
   object3d_add(
     map,
@@ -97,7 +99,7 @@ export var createBasicMap = (scene, camera) => {
         '012',
         vec3_create(12, 1, 12),
       )
-        .map(defaultColors([0, 0.5, 0.2]))
+        .map(defaultColors([0.3, 0.8, 0.4]))
         .reduce(geom_merge),
       terrainMaterial,
     ),

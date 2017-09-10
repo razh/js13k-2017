@@ -1,11 +1,12 @@
 // @flow
 
 import type { Box3 } from './box3';
-import type { Entity, MeshEntity, Component } from './entity';
+import type { Entity, Component } from './entity';
+import type { Mesh } from './mesh';
 import type { Object3D } from './object3d';
 
 export type PhysicsComponent = Component & {
-  parent: ?MeshEntity,
+  parent: ?Entity<Mesh>,
   physics: number,
   boundingBox: Box3,
 };
@@ -35,15 +36,15 @@ import {
 export var BODY_STATIC = 1;
 export var BODY_DYNAMIC = 2;
 
-export var physics_create = (entity: MeshEntity, physics: number): PhysicsComponent => {
+export var physics_create = (entity: Entity<Mesh>, physics: number): PhysicsComponent => {
   return component_create({
     physics,
     boundingBox: box3_setFromObject(box3_create(), entity),
   });
 };
 
-export var physics_add = (entity: MeshEntity, physics: number) => {
-  entity_add(entity, physics_create(entity, physics));
+export var physics_add = (entity: Entity<Mesh>, physics: number) => {
+  return entity_add(entity, physics_create(entity, physics));
 };
 
 export var is_physics_component = (object: Object) => object.physics;
@@ -54,7 +55,7 @@ export var physics_bodies = (object: Object3D): PhysicsComponent[] => {
   object3d_traverse(object, node => {
     if (is_entity(node)) {
       bodies.push(
-        ...((entity_filter(((node: any): MeshEntity), is_physics_component): any): PhysicsComponent[])
+        ...((entity_filter(((node: any): Entity<Mesh>), is_physics_component): any): PhysicsComponent[])
       );
     }
   });

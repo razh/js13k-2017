@@ -1,21 +1,15 @@
 // @flow
 
-import type { Object3D } from './object3d';
-import type { Mesh } from './mesh';
-
-export type Entity = {
+export type Entity<T> = T & {
   components: Component[],
 };
-
-export type Object3DEntity = Object3D & Entity;
-export type MeshEntity = Mesh & Entity;
 
 export interface Component {
   parent: ?Object,
   update(): void,
 }
 
-export var entity_create = <T: Object>(object: T): T & Entity => {
+export var entity_create = <T: Object>(object: T): Entity<T> => {
   return Object.assign(
     {
       components: [],
@@ -34,7 +28,7 @@ export var component_create = <T: Object>(options: T): T & Component => {
   );
 };
 
-export var entity_add = (entity: Entity, ...components: Component[]) => {
+export var entity_add = <T: Object>(entity: Entity<T>, ...components: Component[]) => {
   components.map(component => {
     if (entity_has(entity, component)) {
       return;
@@ -43,21 +37,23 @@ export var entity_add = (entity: Entity, ...components: Component[]) => {
     component.parent = entity;
     entity.components.push(component);
   });
+
+  return entity;
 };
 
-export var entity_has = (entity: Entity, component: Component) => {
+export var entity_has = <T: Object>(entity: Entity<T>, component: Component) => {
   return entity.components.includes(component);
 };
 
-export var entity_find = (entity: Entity, predicate: Function): ?Component => {
+export var entity_find = <T: Object>(entity: Entity<T>, predicate: Function): ?Component => {
   return entity.components.find(predicate);
 };
 
-export var entity_filter = (entity: Entity, predicate: Function): Component[] => {
+export var entity_filter = <T: Object>(entity: Entity<T>, predicate: Function): Component[] => {
   return entity.components.filter(predicate);
 };
 
-export var entity_remove = (entity: Entity, ...components: Component[]) => {
+export var entity_remove = <T: Object>(entity: Entity<T>, ...components: Component[]) => {
   components.map(component => {
     var index = entity.components.indexOf(component);
 
@@ -69,7 +65,7 @@ export var entity_remove = (entity: Entity, ...components: Component[]) => {
   });
 };
 
-export var entity_update = (entity: Entity, ...args: *[]) => {
+export var entity_update = <T: Object>(entity: Entity<T>, ...args: *[]) => {
   entity.components.map(component => component.update(...args));
 };
 

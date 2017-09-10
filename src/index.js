@@ -3,6 +3,7 @@
 import type { BufferGeometry } from './bufferGeom';
 import type { Entity } from './Entity';
 import type { Mesh } from './mesh';
+import type { Object3D } from './object3d';
 
 import { bufferGeom_fromGeom, bufferGeom_create } from './bufferGeom';
 import { camera_create, camera_updateProjectionMatrix } from './camera';
@@ -90,7 +91,7 @@ var update = () => {
   while (accumulatedTime >= dt) {
     object3d_traverse(scene, object => {
       if (is_entity(object)) {
-        entity_update(((object: any): Entity), dt);
+        entity_update(((object: any): Entity<Object3D>), dt);
       }
     });
 

@@ -1,9 +1,3 @@
-// @flow
-
-import type { Camera } from './camera';
-import type { Entity } from './entity';
-import type { Object3D } from './object3d';
-
 import { boxGeom_create } from './boxGeom';
 import { camera_lookAt } from './camera';
 import { entity_create, component_create, entity_add } from './entity';
@@ -18,8 +12,8 @@ import {
 } from './object3d';
 import { vec3_create, vec3_normalize, vec3_set } from './vec3';
 
-export var createBasicMap = (scene: Object3D, camera: Camera) => {
-  var map: Entity<Object3D> = entity_create(object3d_create());
+export var createBasicMap = (scene, camera) => {
+  var map = entity_create(object3d_create());
 
   object3d_add(scene, map);
 

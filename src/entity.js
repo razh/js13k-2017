@@ -1,15 +1,4 @@
-// @flow
-
-export type Entity<T> = T & {
-  components: Component[],
-};
-
-export interface Component {
-  parent: ?Object,
-  update(): void,
-}
-
-export var entity_create = <T: Object>(object: T): Entity<T> => {
+export var entity_create = object => {
   return Object.assign(
     {
       components: [],
@@ -18,7 +7,7 @@ export var entity_create = <T: Object>(object: T): Entity<T> => {
   );
 };
 
-export var component_create = <T: Object>(options: T): T & Component => {
+export var component_create = options => {
   return Object.assign(
     {
       parent: undefined,
@@ -28,7 +17,7 @@ export var component_create = <T: Object>(options: T): T & Component => {
   );
 };
 
-export var entity_add = <T: Object>(entity: Entity<T>, ...components: Component[]) => {
+export var entity_add = (entity, ...components) => {
   components.map(component => {
     if (entity_has(entity, component)) {
       return;
@@ -41,19 +30,19 @@ export var entity_add = <T: Object>(entity: Entity<T>, ...components: Component[
   return entity;
 };
 
-export var entity_has = <T: Object>(entity: Entity<T>, component: Component) => {
+export var entity_has = (entity, component) => {
   return entity.components.includes(component);
 };
 
-export var entity_find = <T: Object>(entity: Entity<T>, predicate: Function): ?Component => {
+export var entity_find = (entity, predicate) => {
   return entity.components.find(predicate);
 };
 
-export var entity_filter = <T: Object>(entity: Entity<T>, predicate: Function): Component[] => {
+export var entity_filter = (entity, predicate) => {
   return entity.components.filter(predicate);
 };
 
-export var entity_remove = <T: Object>(entity: Entity<T>, ...components: Component[]) => {
+export var entity_remove = (entity, ...components) => {
   components.map(component => {
     var index = entity.components.indexOf(component);
 
@@ -65,8 +54,8 @@ export var entity_remove = <T: Object>(entity: Entity<T>, ...components: Compone
   });
 };
 
-export var entity_update = <T: Object>(entity: Entity<T>, ...args: *[]) => {
+export var entity_update = (entity, ...args) => {
   entity.components.map(component => component.update(...args));
 };
 
-export var is_entity = (object: Object) => object.components;
+export var is_entity = object => object.components;

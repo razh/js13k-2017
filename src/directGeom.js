@@ -1,14 +1,4 @@
-// @flow
-
-import type { Geometry } from './geom';
-import type { Vector3 } from './vec3';
-
-export type DirectGeometry = {
-  vertices: Vector3[],
-  colors: Vector3[],
-};
-
-export var directGeom_fromGeom = (geom: Geometry): DirectGeometry => {
+export var directGeom_fromGeom = geom => {
   var vertices = [];
   var colors = [];
 

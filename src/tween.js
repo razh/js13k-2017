@@ -1,20 +1,10 @@
-// @flow
-
-type Tween = {
-  delay: number,
-  duration: number,
-  ease: number => number,
-};
-
 import { ease_linear } from './easings';
 
-export var tween_create = (options: Object = {}): Tween => {
-  var {
-    duration = 0,
-    delay = 0,
-    ease = ease_linear,
-  } = options;
-
+export var tween_create = ({
+  duration = 0,
+  delay = 0,
+  ease = ease_linear,
+}) => {
   return {
     duration,
     delay,

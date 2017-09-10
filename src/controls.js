@@ -1,15 +1,3 @@
-// @flow
-
-import type { Object3D } from './object3d';
-
-type Controls = {
-  object: Object3D,
-  turnRate: number,
-  sensitivity: number,
-  enabled: boolean,
-  onMouseMove(MouseEvent): void,
-};
-
 import {
   quat_create,
   quat_set,
@@ -20,14 +8,14 @@ import {
 var pitchQuat = quat_create();
 var yawQuat = quat_create();
 
-export var controls_create = (object: Object3D): Controls => {
+export var controls_create = object => {
   var controls = {
     object,
     turnRate: Math.PI / 4,
     sensitivity: 0.002,
     enabled: false,
 
-    onMouseMove(event: MouseEvent) {
+    onMouseMove(event) {
       if (!controls.enabled) {
         return;
       }
@@ -52,6 +40,6 @@ export var controls_create = (object: Object3D): Controls => {
   return controls;
 };
 
-export var controls_dispose = (controls: Controls) => {
+export var controls_dispose = controls => {
   document.removeEventListener('mousemove', controls.onMouseMove);
 };

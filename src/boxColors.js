@@ -1,14 +1,8 @@
-// @flow
-
-import type { Vector3 } from './vec3';
-import type { Face3 } from './face3';
-import type { Geometry } from './geom';
-
 import boxIndices from './boxIndices';
 import { vec3_create, vec3_fromArray } from './vec3';
 import { rearg } from './utils';
 
-export var setFaceVertexColor = (face: Face3, index: number, color: Vector3) => {
+export var setFaceVertexColor = (face, index, color) => {
   if (face.a === index) {
     face.vertexColors[0] = color;
   }
@@ -23,7 +17,7 @@ export var setFaceVertexColor = (face: Face3, index: number, color: Vector3) => 
 };
 
 export var applyBoxVertexColors = (() => {
-  return (geom: Geometry, colors: { [string]: number[] }) => {
+  return (geom, colors) => {
     Object.keys(colors).map(key => {
       var color = vec3_fromArray(vec3_create(), colors[key]);
       var indices = boxIndices[key];
@@ -37,7 +31,7 @@ export var applyBoxVertexColors = (() => {
   };
 })();
 
-export var applyDefaultVertexColors = (geom: Geometry, defaultColor: number[]) => {
+export var applyDefaultVertexColors = (geom, defaultColor) => {
   var color = vec3_fromArray(vec3_create(), defaultColor);
 
   geom.faces.map(face => {

@@ -1,18 +1,6 @@
-// @flow
-
-import type { Vector3 } from './vec3';
-
-export type Face3 = {
-  a: number,
-  b: number,
-  c: number,
-  color: Vector3,
-  vertexColors: Vector3[],
-};
-
 import { vec3_create, vec3_clone } from './vec3';
 
-export var face3_create = (a: number, b: number, c: number): Face3 => {
+export var face3_create = (a, b, c) => {
   return {
     a,
     b,
@@ -22,7 +10,7 @@ export var face3_create = (a: number, b: number, c: number): Face3 => {
   };
 };
 
-export var face3_clone = (face: Face3): Face3 => {
+export var face3_clone = face => {
   return {
     a: face.a,
     b: face.b,

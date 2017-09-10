@@ -1,13 +1,3 @@
-// @flow
-
-import type { Mesh } from './mesh';
-import type { Vector3 } from './vec3';
-
-export type Box3 = {
-  min: Vector3,
-  max: Vector3,
-};
-
 import { object3d_traverse, object3d_updateMatrixWorld } from './object3d';
 import {
   vec3_create,
@@ -18,28 +8,28 @@ import {
 } from './vec3';
 
 export var box3_create = (
-  min: Vector3 = vec3_create(Infinity, Infinity, Infinity),
-  max: Vector3 = vec3_create(-Infinity, -Infinity, -Infinity),
-): Box3 => {
+  min = vec3_create(Infinity, Infinity, Infinity),
+  max = vec3_create(-Infinity, -Infinity, -Infinity),
+) => {
   return {
     min,
     max,
   };
 };
 
-export var box3_copy = (a: Box3, b: Box3) => {
+export var box3_copy = (a, b) => {
   Object.assign(a.min, b.min);
   Object.assign(a.max, b.max);
   return a;
 };
 
-export var box3_makeEmpty = (box: Box3) => {
+export var box3_makeEmpty = box => {
   box.min.x = box.min.y = box.min.z = Infinity;
   box.max.x = box.max.y = box.max.z -= Infinity;
   return box;
 };
 
-export var box3_expandByPoint = (box: Box3, point: Vector3) => {
+export var box3_expandByPoint = (box, point) => {
   vec3_min(box.min, point);
   vec3_max(box.max, point);
   return box;
@@ -48,12 +38,12 @@ export var box3_expandByPoint = (box: Box3, point: Vector3) => {
 export var box3_setFromObject = (() => {
   var v1 = vec3_create();
 
-  return (box: Box3, object: Mesh) => {
+  return (box, object) => {
     object3d_updateMatrixWorld(object);
     box3_makeEmpty(box);
 
     object3d_traverse(object, node => {
-      var { geometry } = ((node: any): Mesh);
+      var { geometry } = node;
       if (geometry) {
         geometry.vertices.map(vertex => {
           Object.assign(v1, vertex);
@@ -67,7 +57,7 @@ export var box3_setFromObject = (() => {
   };
 })();
 
-export var box3_intersectsBox = (a: Box3, b: Box3) => {
+export var box3_intersectsBox = (a, b) => {
   return !(
     a.max.x < b.min.x || a.min.x > b.max.x ||
     a.max.y < b.min.y || a.min.y > b.max.y ||
@@ -75,7 +65,7 @@ export var box3_intersectsBox = (a: Box3, b: Box3) => {
   );
 };
 
-export var box3_translate = (box: Box3, offset: Vector3) => {
+export var box3_translate = (box, offset) => {
   vec3_add(box.min, offset);
   vec3_add(box.max, offset);
   return box;

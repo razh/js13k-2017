@@ -1,5 +1,3 @@
-// @flow
-
 // Vertices.
 // pz-nz order is reversed for the nx side.
 var px_py_pz = [0];

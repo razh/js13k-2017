@@ -1,19 +1,3 @@
-// @flow
-
-import type { Matrix4 } from './mat4';
-import type { Object3D } from './object3d';
-import type { Vector3 } from './vec3';
-
-export type Camera = Object3D & {
-  fov: number,
-  near: number,
-  far: number,
-  aspect: number,
-  up: Vector3,
-  matrixWorldInverse: Matrix4,
-  projectionMatrix: Matrix4,
-};
-
 import { mat4_create, mat4_lookAt } from './mat4';
 import { object3d_create } from './object3d';
 import { quat_setFromRotationMatrix } from './quat';
@@ -22,13 +6,12 @@ import { vec3_clone, vec3_Y } from './vec3';
 var DEG_TO_RAD = Math.PI / 180;
 
 export var camera_create = (
-  fov: number = 60,
-  aspect: number = 1,
-  near: number = 0.1,
-  far: number = 2000,
-): Camera => {
+  fov = 60,
+  aspect = 1,
+  near = 0.1,
+  far = 2000,
+) => {
   var camera = Object.assign(
-    {},
     object3d_create(),
     {
       fov,
@@ -49,13 +32,13 @@ export var camera_create = (
 export var camera_lookAt = (() => {
   var m1 = mat4_create();
 
-  return (camera: Camera, vector: Vector3) => {
+  return (camera, vector) => {
     mat4_lookAt(m1, camera.position, vector, camera.up);
     quat_setFromRotationMatrix(camera.quaternion, m1);
   };
 })();
 
-export var camera_updateProjectionMatrix = (camera: Camera) => {
+export var camera_updateProjectionMatrix = camera => {
   var { near, far } = camera;
 
   var top = near * Math.tan(camera.fov * 0.5 * DEG_TO_RAD);

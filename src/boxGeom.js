@@ -1,10 +1,6 @@
-// @flow
-
-import type { Geometry } from './geom';
-
 import { geom_create, geom_push } from './geom';
 
-export var boxGeom_create = (width: number, height: number, depth: number): Geometry => {
+export var boxGeom_create = (width, height, depth) => {
   var halfWidth = width / 2;
   var halfHeight = height / 2;
   var halfDepth = depth / 2;

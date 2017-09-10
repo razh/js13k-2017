@@ -1,16 +1,3 @@
-// @flow
-
-import type { Box3 } from './box3';
-import type { Entity, Component } from './entity';
-import type { Mesh } from './mesh';
-import type { Object3D } from './object3d';
-
-export type PhysicsComponent = Component & {
-  parent: ?Entity<Mesh>,
-  physics: number,
-  boundingBox: Box3,
-};
-
 import {
   box3_create,
   box3_copy,
@@ -36,27 +23,25 @@ import {
 export var BODY_STATIC = 1;
 export var BODY_DYNAMIC = 2;
 
-export var physics_create = (entity: Entity<Mesh>, physics: number): PhysicsComponent => {
+export var physics_create = (entity, physics) => {
   return component_create({
     physics,
     boundingBox: box3_setFromObject(box3_create(), entity),
   });
 };
 
-export var physics_add = (entity: Entity<Mesh>, physics: number) => {
+export var physics_add = (entity, physics) => {
   return entity_add(entity, physics_create(entity, physics));
 };
 
-export var is_physics_component = (object: Object) => object.physics;
+export var is_physics_component = object => object.physics;
 
-export var physics_bodies = (object: Object3D): PhysicsComponent[] => {
+export var physics_bodies = object => {
   var bodies = [];
 
   object3d_traverse(object, node => {
     if (is_entity(node)) {
-      bodies.push(
-        ...((entity_filter(((node: any): Entity<Mesh>), is_physics_component): any): PhysicsComponent[])
-      );
+      bodies.push(...entity_filter(node, is_physics_component));
     }
   });
 
@@ -69,7 +54,7 @@ export var physics_update = (() => {
   var boxA = box3_create();
   var boxB = box3_create();
 
-  return (bodies: PhysicsComponent[]) => {
+  return bodies => {
     bodies.map(bodyA => {
       bodies.map(bodyB => {
         if (
@@ -81,8 +66,8 @@ export var physics_update = (() => {
           return;
         }
 
-        var objectA = ((bodyA.parent: any): Object3D);
-        var objectB = ((bodyB.parent: any): Object3D);
+        var objectA = bodyA.parent;
+        var objectB = bodyB.parent;
 
         // Two dynamic bodies, or one static and one dynamic body.
         box3_translate(box3_copy(boxA, bodyA.boundingBox), objectA.position);

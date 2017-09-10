@@ -1,9 +1,4 @@
-// @flow
-
-import type { BufferGeometry } from './bufferGeom';
-import type { Entity } from './Entity';
-import type { Mesh } from './mesh';
-import type { Object3D } from './object3d';
+/* global c */
 
 import { bufferGeom_fromGeom, bufferGeom_create } from './bufferGeom';
 import { camera_create, camera_updateProjectionMatrix } from './camera';
@@ -38,10 +33,7 @@ import {
 import vert from './shaders/phong_vert.glsl';
 import frag from './shaders/phong_frag.glsl';
 
-declare var c: HTMLCanvasElement;
-
-// Cast from ?WebGLRenderingContext.
-var gl = ((c.getContext('webgl'): any): WebGLRenderingContext);
+var gl = c.getContext('webgl');
 
 gl.clearColor(0, 0, 0, 0);
 gl.enable(gl.DEPTH_TEST);
@@ -66,7 +58,7 @@ var lights = createBasicMap(scene, camera);
 var program = createShaderProgram(
   gl,
   vert,
-  frag.replace(/NUM_DIR_LIGHTS/g, ((lights.directional.length: any): string)),
+  frag.replace(/NUM_DIR_LIGHTS/g, lights.directional.length),
 );
 
 gl.useProgram(program);
@@ -91,7 +83,7 @@ var update = () => {
   while (accumulatedTime >= dt) {
     object3d_traverse(scene, object => {
       if (is_entity(object)) {
-        entity_update(((object: any): Entity<Object3D>), dt);
+        entity_update(object, dt);
       }
     });
 
@@ -101,12 +93,7 @@ var update = () => {
 
 var bufferGeomBuffers = new WeakMap();
 
-var setFloat32AttributeBuffer = (
-  name: string,
-  location: number,
-  bufferGeom: BufferGeometry,
-  size: number
-) => {
+var setFloat32AttributeBuffer = (name, location, bufferGeom, size) => {
   var buffers = bufferGeomBuffers.get(bufferGeom);
 
   if (!buffers) {
@@ -125,7 +112,7 @@ var setFloat32AttributeBuffer = (
 
 var bufferGeoms = new WeakMap();
 
-var renderMesh = (mesh: Mesh) => {
+var renderMesh = mesh => {
   var { geometry, material } = mesh;
 
   setVec3Uniform(gl, uniforms.fogColor, fogColor);
@@ -179,7 +166,7 @@ var render = () => {
 
   object3d_traverse(scene, object => {
     if (object.visible && object.geometry && object.material) {
-      renderMesh(((object: any): Mesh));
+      renderMesh(object);
     }
   });
 };
@@ -210,7 +197,7 @@ window.addEventListener('resize', () => {
   render();
 });
 
-document.addEventListener('keypress', (event: KeyboardEvent) => {
+document.addEventListener('keypress', event => {
   // Pause/play.
   if (event.code === 'KeyP') {
     running = !running;

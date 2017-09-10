@@ -1,5 +1,3 @@
-// @flow
+export var compose = (...fns) => fns.reduceRight((f, g) => (...args) => f(g(...args)));
 
-export var compose = (...fns: Function[]) => fns.reduceRight((f, g) => (...args) => f(g(...args)));
-
-export var rearg = (fn: Function) => (...args: *[]) => (value: any) => fn(value, ...args);
+export var rearg = fn => (...args) => value => fn(value, ...args);

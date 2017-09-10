@@ -1,5 +1,3 @@
-// @flow
-
 import { geom_translate } from './geom';
 import boxIndices from './boxIndices';
 import {

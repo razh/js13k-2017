@@ -58,32 +58,23 @@ var transformBoxVertices = (() => {
   var vector = vec3_create();
 
   return (method, identity = vec3_create()) => {
-    var baseTransform = (geom, key, delta, ...args) => {
-      var indices = boxIndices[key];
+    return (geom, vectors) => {
+      Object.keys(vectors).map(key => {
+        var delta = vectors[key];
+        var indices = boxIndices[key];
 
-      if (Array.isArray(delta)) {
-        vec3_fromArray(vector, delta);
-      } else if (typeof delta === 'object') {
-        Object.assign(vector, identity, delta);
-      } else if (typeof delta === 'number') {
-        vec3_setScalar(vector, delta);
-      } else {
-        return geom;
-      }
+        if (Array.isArray(delta)) {
+          vec3_fromArray(vector, delta);
+        } else if (typeof delta === 'object') {
+          Object.assign(vector, identity, delta);
+        } else if (typeof delta === 'number') {
+          vec3_setScalar(vector, delta);
+        } else {
+          return;
+        }
 
-      indices.map(index => method(geom.vertices[index], vector, ...args));
-      return geom;
-    };
-
-    return (geom, vectors, ...args) => {
-      if (typeof vectors === 'string') {
-        return baseTransform(geom, vectors, ...args);
-      } else if (typeof vectors === 'object') {
-        Object.keys(vectors).map(key => {
-          var delta = vectors[key];
-          baseTransform(geom, key, delta, ...args);
-        });
-      }
+        indices.map(index => method(geom.vertices[index], vector));
+      });
 
       return geom;
     };
@@ -98,26 +89,16 @@ var transformAxisBoxVertices = (() => {
 
   return (method, identity = vec3_create()) => {
     return axis => {
-      var baseTransformAxis = (geom, key, delta = identity[axis], ...args) => {
-        var indices = boxIndices[key];
+      return (geom, vectors) => {
+        Object.keys(vectors).map(key => {
+          var { [key]: delta = identity[axis] } = vectors;
+          var indices = boxIndices[key];
 
-        Object.assign(vector, identity);
-        vector[axis] = delta;
+          Object.assign(vector, identity);
+          vector[axis] = delta;
 
-        indices.map(index => method(geom.vertices[index], vector, ...args));
-        return geom;
-      };
-
-      return (geom, vectors, ...args) => {
-        if (typeof vectors === 'string') {
-          var delta = args.shift();
-          return baseTransformAxis(geom, vectors, delta, ...args);
-        } else if (typeof vectors === 'object') {
-          Object.keys(vectors).map(key => {
-            var delta = vectors[key];
-            baseTransformAxis(geom, key, delta, ...args);
-          });
-        }
+          indices.map(index => method(geom.vertices[index], vector));
+        });
 
         return geom;
       };
@@ -132,27 +113,18 @@ export var translateYVertices = rearg(translateAxisBoxVertices('y'));
 export var translateZVertices = rearg(translateAxisBoxVertices('z'));
 
 var callBoxVertices = method => {
-  var baseCall = (geom, key, ...args) => {
-    var indices = boxIndices[key];
-    indices.map(index => method(geom.vertices[index], ...args));
-    return geom;
-  };
-
-  return (geom, vectors, ...args) => {
-     if (typeof vectors === 'string') {
-       return baseCall(geom, vectors, ...args);
-     } else if (typeof vectors === 'object') {
-       Object.keys(vectors).map(key => {
-         var value = vectors[key];
-         baseCall(geom, key, value, ...args);
-       });
-     }
+  return (geom, vectors) => {
+     Object.keys(vectors).map(key => {
+       var value = vectors[key];
+       var indices = boxIndices[key];
+       indices.map(index => method(geom.vertices[index], value));
+     });
 
      return geom;
    };
 };
 
-export var set = rearg(callBoxVertices(vec3_set));
+export var set = rearg(callBoxVertices(vec3_fromArray));
 export var setX = rearg(callBoxVertices(vec3_setX));
 export var setY = rearg(callBoxVertices(vec3_setY));
 export var setZ = rearg(callBoxVertices(vec3_setZ));

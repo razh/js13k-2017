@@ -19,6 +19,7 @@ import {
   physics_update,
   BODY_STATIC,
   BODY_DYNAMIC,
+  SHAPE_HEIGHTFIELD,
 } from'./physics';
 import { terrain_create } from './terrain';
 import { vec3_create, vec3_normalize, vec3_set } from './vec3';
@@ -86,24 +87,27 @@ export var createBasicMap = (gl, scene, camera) => {
   var terrainMaterial = material_create();
   terrainMaterial.shininess = 2;
 
-  object3d_add(
-    map,
-    mesh_create(
-      terrain_create(
-        [
-          '02000 ',
-          '01110 ',
-          '00000 ',
-          '      ',
-        ],
-        '012',
-        vec3_create(12, 1, 12),
-      )
-        .map(defaultColors([0.3, 0.8, 0.4]))
-        .reduce(geom_merge),
-      terrainMaterial,
-    ),
+  var terrainMesh = mesh_create(
+    terrain_create(
+      [
+        '02000 ',
+        '01110 ',
+        '00000 ',
+        '      ',
+      ],
+      '012',
+      vec3_create(12, 1, 12),
+    )
+      .map(defaultColors([0.3, 0.8, 0.4]))
+      .reduce(geom_merge),
+    terrainMaterial,
   );
+
+  var terrainPhysics = physics_create(terrainMesh, BODY_STATIC);
+  terrainPhysics.shape = SHAPE_HEIGHTFIELD;
+  entity_add(terrainMesh, terrainPhysics);
+
+  object3d_add(map, terrainMesh);
 
   var ambient = vec3_create(0.5, 0.5, 0.5);
 

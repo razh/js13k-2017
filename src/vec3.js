@@ -138,6 +138,10 @@ export var vec3_crossVectors = (v, a, b) => {
   return v;
 };
 
+export var vec3_dot = (a, b) => {
+  return a.x * b.x + a.y * b.y + a.z * b.z;
+};
+
 export var vec3_length = v => {
   return Math.sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
 };

@@ -30,7 +30,7 @@ var alignBoxVertices = (() => {
   return (geom, key) => {
     var indices = boxIndices[key];
     computeCentroid(geom, indices, centroid);
-    return geom_translate(geom, -centroid.x, -centroid.y, centroid.z);
+    return geom_translate(geom, -centroid.x, -centroid.y, -centroid.z);
   };
 })();
 

@@ -40,7 +40,7 @@ gl.enable(gl.DEPTH_TEST);
 gl.enable(gl.CULL_FACE);
 gl.getExtension('OES_standard_derivatives');
 
-var running = false;
+var running = true;
 
 // Scene
 var scene = object3d_create();
@@ -139,6 +139,7 @@ var renderMesh = mesh => {
   gl.drawArrays(gl.TRIANGLES, 0, bufferGeom.attrs.position.length / 3);
 };
 
+var vector = vec3_create();
 var lightDirection = vec3_create();
 
 var render = () => {
@@ -150,13 +151,11 @@ var render = () => {
   setVec3Uniform(gl, uniforms.ambientLightColor, lights.ambient);
 
   lights.directional.map((light, index) => {
-    var temp = vec3_create();
-
     var direction = vec3_setFromMatrixPosition(lightDirection, light.matrixWorld);
-    vec3_setFromMatrixPosition(temp, light.target.matrixWorld);
-    vec3_transformDirection(vec3_sub(direction, temp), camera.matrixWorldInverse);
+    vec3_setFromMatrixPosition(vector, light.target.matrixWorld);
+    vec3_transformDirection(vec3_sub(direction, vector), camera.matrixWorldInverse);
 
-    var color = vec3_multiplyScalar(Object.assign(temp, light.color), light.intensity);
+    var color = vec3_multiplyScalar(Object.assign(vector, light.color), light.intensity);
 
     setVec3Uniform(gl, uniforms[`directionalLights[${index}].direction`], direction);
     setVec3Uniform(gl, uniforms[`directionalLights[${index}].color`], color);

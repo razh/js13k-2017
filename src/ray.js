@@ -32,6 +32,49 @@ export var ray_at = (ray, t, result = vec3_create()) => {
   );
 };
 
+export var ray_intersectBox = (ray, box, optionalTarget) => {
+  var { origin, direction } = ray;
+
+  var txmin = (box.min.x - origin.x) / direction.x;
+  var txmax = (box.max.x - origin.x) / direction.x;
+  if (txmin > txmax) {
+    [txmin, txmax] = [txmax, txmin];
+  }
+
+  var tymin = (box.min.y - origin.y) / direction.y;
+  var tymax = (box.max.y - origin.y) / direction.y;
+  if (tymin > tymax) {
+    [tymin, tymax] = [tymax, tymin];
+  }
+
+  if ((txmin > tymax) || (tymin > txmax)) {
+    return;
+  }
+
+  // Math.min/max with NaN support (0 / 0).
+  var tmin = ((tymin > txmin) || (txmin !== txmin)) ? tymin : txmin;
+  var tmax = ((tymax < txmax) || (txmax !== txmax)) ? tymax : txmax;
+
+  var tzmin = (box.min.z - origin.z) / direction.z;
+  var tzmax = (box.max.z - origin.z) / direction.z;
+  if (tzmin > tzmax) {
+    [tzmin, tzmax] = [tzmax, tzmin];
+  }
+
+  if ((tmin > tzmax) || (tzmin > tmax)) {
+    return;
+  }
+
+  tmin = ((tzmin > tmin) || (tmin !== tmin)) ? tzmin : tmin;
+  tmax = ((tzmax < tmax) || (tmax !== tmax)) ? tzmax : tmax;
+
+  if (tmax < 0) {
+    return;
+  }
+
+  return ray_at(ray, tmin >= 0 ? tmin : tmax, optionalTarget);
+};
+
 export var ray_intersectTriangle = (() => {
   var delta = vec3_create();
   var edge0 = vec3_create();

@@ -101,9 +101,9 @@ var narrowPhase = (() => {
         var ady = Math.abs(dy);
         var adz = Math.abs(dz);
 
-        if (adx <= ady && ady <= adz) {
+        if (adx < ady && adx < adz) {
           vec3_set(penetration, dx, 0, 0);
-        } else if (ady <= adx && ady <= adz) {
+        } else if (ady < adz) {
           vec3_set(penetration, 0, dy, 0);
         } else {
           vec3_set(penetration, 0, 0, dz);

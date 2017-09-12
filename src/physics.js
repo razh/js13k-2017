@@ -52,89 +52,74 @@ export var physics_bodies = object => {
 
 var narrowPhase = (() => {
   var penetration = vec3_create();
-
-  var box = box3_create();
-  var boxA = box3_create();
-  var boxB = box3_create();
-
   var ray = ray_create();
 
   return {
-    [SHAPE_BOX | SHAPE_BOX](bodyA, bodyB) {
+    [SHAPE_BOX | SHAPE_BOX](bodyA, bodyB, boxA, boxB) {
+      // Determine overlap.
+      // d0 is negative side or 'left' side.
+      // d1 is positive or 'right' side.
+      var d0x = boxB.max.x - boxA.min.x;
+      var d1x = boxA.max.x - boxB.min.x;
+
+      var d0y = boxB.max.y - boxA.min.y;
+      var d1y = boxA.max.y - boxB.min.y;
+
+      var d0z = boxB.max.z - boxA.min.z;
+      var d1z = boxA.max.z - boxB.min.z;
+
+      // Only overlapping on an axis if both ranges intersect.
+      var dx = 0;
+      if (d0x > 0 && d1x > 0) {
+        dx = d0x < d1x ? d0x : -d1x;
+      }
+
+      var dy = 0;
+      if (d0y > 0 && d1y > 0) {
+        dy = d0y < d1y ? d0y : -d1y;
+      }
+
+      var dz = 0;
+      if (d0z > 0 && d1z > 0) {
+        dz = d0z < d1z ? d0z : -d1z;
+      }
+
+      // Determine minimum axis of separation.
+      var adx = Math.abs(dx);
+      var ady = Math.abs(dy);
+      var adz = Math.abs(dz);
+
+      if (adx < ady && adx < adz) {
+        vec3_set(penetration, dx, 0, 0);
+      } else if (ady < adz) {
+        vec3_set(penetration, 0, dy, 0);
+      } else {
+        vec3_set(penetration, 0, 0, dz);
+      }
+
       var objectA = bodyA.parent;
       var objectB = bodyB.parent;
 
-      box3_translate(box3_copy(boxA, bodyA.boundingBox), objectA.position);
-      box3_translate(box3_copy(boxB, bodyB.boundingBox), objectB.position);
-
-      if (box3_intersectsBox(boxA, boxB)) {
-        // Determine overlap.
-        // d0 is negative side or 'left' side.
-        // d1 is positive or 'right' side.
-        var d0x = boxB.max.x - boxA.min.x;
-        var d1x = boxA.max.x - boxB.min.x;
-
-        var d0y = boxB.max.y - boxA.min.y;
-        var d1y = boxA.max.y - boxB.min.y;
-
-        var d0z = boxB.max.z - boxA.min.z;
-        var d1z = boxA.max.z - boxB.min.z;
-
-        // Only overlapping on an axis if both ranges intersect.
-        var dx = 0;
-        if (d0x > 0 && d1x > 0) {
-          dx = d0x < d1x ? d0x : -d1x;
-        }
-
-        var dy = 0;
-        if (d0y > 0 && d1y > 0) {
-          dy = d0y < d1y ? d0y : -d1y;
-        }
-
-        var dz = 0;
-        if (d0z > 0 && d1z > 0) {
-          dz = d0z < d1z ? d0z : -d1z;
-        }
-
-        // Determine minimum axis of separation.
-        var adx = Math.abs(dx);
-        var ady = Math.abs(dy);
-        var adz = Math.abs(dz);
-
-        if (adx < ady && adx < adz) {
-          vec3_set(penetration, dx, 0, 0);
-        } else if (ady < adz) {
-          vec3_set(penetration, 0, dy, 0);
-        } else {
-          vec3_set(penetration, 0, 0, dz);
-        }
-
-        if (bodyA.physics === BODY_STATIC) {
-          vec3_sub(objectB.position, penetration);
-        } else if (bodyB.physics === BODY_STATIC) {
-          vec3_add(objectA.position, penetration);
-        } else {
-          vec3_multiplyScalar(penetration, 0.5);
-          vec3_add(objectA.position, penetration);
-          vec3_sub(objectB.position, penetration);
-        }
+      if (bodyA.physics === BODY_STATIC) {
+        vec3_sub(objectB.position, penetration);
+      } else if (bodyB.physics === BODY_STATIC) {
+        vec3_add(objectA.position, penetration);
+      } else {
+        vec3_multiplyScalar(penetration, 0.5);
+        vec3_add(objectA.position, penetration);
+        vec3_sub(objectB.position, penetration);
       }
     },
 
-    [SHAPE_BOX | SHAPE_HEIGHTFIELD](bodyA, bodyB) {
-      var boxBody;
-      var heightfieldBody;
-
+    [SHAPE_BOX | SHAPE_HEIGHTFIELD](bodyA, bodyB, boxA, boxB) {
       if (bodyA.shape === SHAPE_HEIGHTFIELD) {
-        boxBody = bodyB;
-        heightfieldBody = bodyA;
-      } else {
-        boxBody = bodyA;
-        heightfieldBody = bodyB;
+        [bodyA, bodyB] = [bodyB, bodyA];
+        [boxA, boxB] = [boxB, boxA];
       }
 
-      var boxObject = boxBody.parent;
-      var heightfieldObject = heightfieldBody.parent;
+      var box = boxA;
+      var boxObject = bodyA.parent;
+      var heightfieldObject = bodyB.parent;
 
       Object.assign(ray.origin, boxObject.position);
       vec3_set(ray.direction, 0, -1, 0);
@@ -143,7 +128,6 @@ var narrowPhase = (() => {
       if (intersections.length) {
         intersections.sort((a, b) => a.distance - b.distance);
 
-        box3_translate(box3_copy(box, boxBody.boundingBox), boxObject.position);
         var point = intersections[0].point;
         var dy = box.min.y - point.y;
         if (dy <= 0) {
@@ -154,20 +138,33 @@ var narrowPhase = (() => {
   };
 })();
 
-export var physics_update = bodies => {
-  bodies.map(bodyA => {
-    bodies.map(bodyB => {
-      if (
-        // Same object.
-        bodyA === bodyB ||
-        // Immovable objects.
-        bodyA.physics === BODY_STATIC && bodyB.physics === BODY_STATIC
-      ) {
-        return;
-      }
+export var physics_update = (() => {
+  var boxA = box3_create();
+  var boxB = box3_create();
 
-      // Two dynamic bodies, or one static and one dynamic body.
-      narrowPhase[bodyA.shape | bodyB.shape](bodyA, bodyB);
+  return bodies => {
+    bodies.map(bodyA => {
+      bodies.map(bodyB => {
+        if (
+          // Same object.
+          bodyA === bodyB ||
+          // Immovable objects.
+          bodyA.physics === BODY_STATIC && bodyB.physics === BODY_STATIC
+        ) {
+          return;
+        }
+
+        // Two dynamic bodies, or one static and one dynamic body.
+        var objectA = bodyA.parent;
+        var objectB = bodyB.parent;
+
+        box3_translate(box3_copy(boxA, bodyA.boundingBox), objectA.position);
+        box3_translate(box3_copy(boxB, bodyB.boundingBox), objectB.position);
+
+        if (box3_intersectsBox(boxA, boxB)) {
+          narrowPhase[bodyA.shape | bodyB.shape](bodyA, bodyB, boxA, boxB);
+        }
+      });
     });
-  });
-};
+  };
+})();

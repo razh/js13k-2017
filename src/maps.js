@@ -21,7 +21,7 @@ import {
   BODY_DYNAMIC,
   SHAPE_HEIGHTFIELD,
 } from'./physics';
-import { terrain_create } from './terrain';
+import { terrain_create, terrain_fromStringArray } from './terrain';
 import { vec3_create, vec3_normalize, vec3_set } from './vec3';
 
 export var createBasicMap = (gl, scene, camera) => {
@@ -89,13 +89,15 @@ export var createBasicMap = (gl, scene, camera) => {
 
   var terrainMesh = mesh_create(
     terrain_create(
-      [
-        '02000 ',
-        '01110 ',
-        '00000 ',
-        '      ',
-      ],
-      '012',
+      terrain_fromStringArray(
+        [
+          '02000 ',
+          '01110 ',
+          '00000 ',
+          '      ',
+        ],
+        '012',
+      ),
       vec3_create(12, 1, 12),
     )
       .map(defaultColors([0.3, 0.8, 0.4]))

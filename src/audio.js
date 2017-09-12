@@ -27,6 +27,59 @@ var generateAudioBuffer = (fn, duration, volume) => {
   return buffer;
 };
 
+var wet = audioContext.createGain();
+wet.gain.value = 0.5;
+wet.connect(audioContext.destination);
+
+var dry = audioContext.createGain();
+dry.gain.value = 1 - wet.gain.value;
+dry.connect(audioContext.destination);
+
+var convolver = audioContext.createConvolver();
+convolver.connect(wet);
+
+var master = audioContext.createGain();
+master.gain.value = 0.8;
+master.connect(dry);
+master.connect(convolver);
+
+var impulseResponse = (t, i, a) => {
+  return (2 * Math.random() - 1) * Math.pow(64, -i / a.length);
+};
+
+var impulseResponseBuffer = generateAudioBuffer(impulseResponse, 2, 1);
+
+// Cheap hack for reverb.
+var renderLowPassOffline = (convolver, startFrequency, endFrequency, duration) => {
+  var offlineCtx = new OfflineAudioContext(1, impulseResponseBuffer.length, sampleRate);
+
+  var offlineFilter = offlineCtx.createBiquadFilter();
+  offlineFilter.type = 'lowpass';
+  offlineFilter.Q.value = 0.0001;
+  offlineFilter.frequency.value = startFrequency;
+  offlineFilter.frequency.linearRampToValueAtTime(endFrequency, duration);
+  offlineFilter.connect(offlineCtx.destination);
+
+  var offlineBufferSource = offlineCtx.createBufferSource();
+  offlineBufferSource.buffer = impulseResponseBuffer;
+  offlineBufferSource.connect(offlineFilter);
+  offlineBufferSource.start();
+
+  var render = offlineCtx.startRendering();
+
+  // https://developer.mozilla.org/en-US/docs/Web/API/OfflineAudioContext/startRendering
+  if (render !== undefined) {
+    // Promises.
+    render.then(buffer => convolver.buffer = buffer);
+  } else {
+    // Callbacks.
+    offlineCtx.oncomplete = event => convolver.buffer = event.renderedBuffer;
+  }
+};
+
+// A4 to A3.
+renderLowPassOffline(convolver, 440, 220, 1);
+
 // Oscillators
 // f: frequency, t: parameter.
 var sin = f => t => Math.sin(t * 2 * Math.PI * f);
@@ -97,4 +150,20 @@ playSound(generateAudioBuffer(
   mul(add(sin, noise), decay(8))(toFreq(69)),
   2,
   1,
-));
+), 0, master);
+
+// Chorus sine
+playSound(generateAudioBuffer(
+  mul(
+    add(
+      add(
+        sin,
+        detune(sin, 0.1),
+      ),
+      detune(sin, -0.1),
+    ),
+    decay(4)
+  )(toFreq(69)),
+  4,
+  1,
+), 1, master);

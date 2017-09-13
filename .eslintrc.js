@@ -8,6 +8,7 @@ module.exports = {
     sourceType: 'module',
   },
   globals: {
+    Promise: false,
     ArrayBuffer: false,
     DataView: false,
     Float32Array: false,
@@ -30,7 +31,11 @@ module.exports = {
     'object-shorthand': ['error', 'always'],
     'padded-blocks': ['error', 'never'],
     semi: ['error', 'always'],
-    'space-before-function-paren': ['error', 'never'],
+    'space-before-function-paren': ['error', {
+      anonymous: 'never',
+      named: 'never',
+      asyncArrow: 'always',
+    }],
     'space-in-parens': ['error', 'never'],
   },
 };

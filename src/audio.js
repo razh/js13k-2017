@@ -8,11 +8,11 @@ var { sampleRate } = audioContext;
 // A4 is 69.
 var toFreq = note => (2 ** ((note - 69) / 12)) * 440;
 
-var playSound = (sound, delay, destination = audioContext.destination) => {
+var playSound = (sound, destination = audioContext.destination) => {
   var source = audioContext.createBufferSource();
   source.buffer = sound;
   source.connect(destination);
-  source.start(delay ? audioContext.currentTime + delay : 0);
+  source.start();
 };
 
 var generateAudioBuffer = (fn, duration, volume) => {
@@ -146,24 +146,31 @@ var steps = (f, d) => f * (2 ** (d / 12));
 
 var detune = (fn, d) => f => fn(steps(f, d));
 
-playSound(generateAudioBuffer(
-  mul(add(sin, noise), decay(8))(toFreq(69)),
-  2,
-  1,
-), 0, master);
+// Sequencer
+var delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 
-// Chorus sine
-playSound(generateAudioBuffer(
-  mul(
-    add(
+(async () => {
+  playSound(generateAudioBuffer(
+    mul(add(sin, noise), decay(8))(toFreq(69)),
+    2,
+    1,
+  ), master);
+
+  await delay(1000);
+
+  // Chorus sine
+  playSound(generateAudioBuffer(
+    mul(
       add(
-        sin,
-        detune(sin, 0.1),
+        add(
+          sin,
+          detune(sin, 0.1),
+        ),
+        detune(sin, -0.1),
       ),
-      detune(sin, -0.1),
-    ),
-    decay(4)
-  )(toFreq(69)),
-  4,
-  1,
-), 1, master);
+      decay(2)
+    )(toFreq(57)),
+    8,
+    0.4,
+  ), master);
+})();

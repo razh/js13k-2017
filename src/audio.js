@@ -1,6 +1,7 @@
 import { randFloatSpread } from './math';
 
-var { AudioContext } = window;
+var AudioContext = window.AudioContext || window.webkitAudioContext;
+var OfflineAudioContext = window.OfflineAudioContext || window.webkitOfflineAudioContext;
 
 var audioContext = new AudioContext();
 var { sampleRate } = audioContext;

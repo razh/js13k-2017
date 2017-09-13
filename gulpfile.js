@@ -99,7 +99,9 @@ gulp.task('rollup', () => {
     .then(bundle => bundle.write({
       file: 'build/bundle.js',
       format: 'iife',
-    }));
+    }))
+    // eslint-disable-next-line no-console
+    .catch(error => console.error(error));
 });
 
 gulp.task('uglify', () => {

@@ -41,7 +41,7 @@ export var object3d_lookAt = (() => {
 
   return (object, vector) => {
     mat4_lookAt(m1, vector, object.position, vec3_Y);
-    quat_setFromRotationMatrix(object.quat, m1);
+    quat_setFromRotationMatrix(object.quaternion, m1);
   };
 })();
 

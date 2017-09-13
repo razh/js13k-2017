@@ -35,6 +35,12 @@ export var box3_expandByPoint = (box, point) => {
   return box;
 };
 
+export var box3_setFromPoints = (box, points) => {
+  box3_makeEmpty(box);
+  points.map(point => box3_expandByPoint(box, point));
+  return box;
+};
+
 export var box3_setFromObject = (() => {
   var v1 = vec3_create();
 

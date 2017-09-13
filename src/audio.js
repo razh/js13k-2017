@@ -28,6 +28,43 @@ var generateAudioBuffer = (fn, duration, volume) => {
   return buffer;
 };
 
+var noteNames = ['c', 'cs', 'd', 'ds', 'e', 'f', 'fs', 'g', 'gs', 'a', 'as', 'b'];
+
+var toNoteString = note => {
+  var name = noteNames[note % 12];
+  var octave = Math.floor(note / 12) - 1;
+  return name + octave;
+};
+
+var generateNotes = (fn, duration, volume) => {
+  var notes = {};
+
+  var createNoteProperty = note => {
+    var sound;
+
+    var descriptor = {
+      get() {
+        if (!sound) {
+          sound = generateAudioBuffer(fn(toFreq(note)), duration, volume);
+        }
+
+        return sound;
+      },
+    };
+
+    Object.defineProperty(notes, note, descriptor);
+    Object.defineProperty(notes, toNoteString(note), descriptor);
+  };
+
+  // From A1 (21) to A7 (105).
+  for (var i = 21; i <= 105; i++) {
+    createNoteProperty(i);
+  }
+
+  return notes;
+};
+
+
 var wet = audioContext.createGain();
 wet.gain.value = 0.5;
 wet.connect(audioContext.destination);
@@ -148,30 +185,36 @@ var steps = (f, d) => f * (2 ** (d / 12));
 var detune = (fn, d) => f => fn(steps(f, d));
 
 // Sequencer
-var delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+var d = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+var synth = mul(
+  add(
+    add(
+      sin,
+      detune(sin, 0.1),
+    ),
+    detune(sin, -0.1),
+  ),
+  decay(2)
+);
+
+var synth2 = generateNotes(
+  synth,
+  24,
+  0.4,
+);
+
+var W = 1000;
+var H = W / 2;
+var Q = H / 2;
+var E = Q / 2;
+var S = E / 2;
+var T = S / 2;
 
 (async () => {
-  playSound(generateAudioBuffer(
-    mul(add(sin, noise), decay(8))(toFreq(69)),
-    2,
-    1,
-  ), master);
+  var play = sound => playSound(sound, master);
 
-  await delay(1000);
-
-  // Chorus sine
-  playSound(generateAudioBuffer(
-    mul(
-      add(
-        add(
-          sin,
-          detune(sin, 0.1),
-        ),
-        detune(sin, -0.1),
-      ),
-      decay(2)
-    )(toFreq(57)),
-    8,
-    0.4,
-  ), master);
+  play(synth2.a3);
+  // await d(E)
+  play(synth2.a3);
 })();

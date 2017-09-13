@@ -1,5 +1,6 @@
 import { boxGeom_create } from './boxGeom';
 import { $translateY } from './boxTransforms';
+import fbm from './fbm';
 import { translate } from './geom';
 import { randFloatSpread } from './math';
 import { vec3_create } from './vec3';
@@ -111,6 +112,20 @@ export var terrain_diamondSquare = (detail, roughness = 0.5) => {
   set(0, max, max / 2);
 
   divide(max);
+
+  return map;
+};
+
+export var terrain_fbm = (width, depth) => {
+  var map = [];
+
+  for (var z = 0; z < depth; z++) {
+    map[z] = [];
+
+    for (var x = 0; x < width; x++) {
+      map[z][x] = fbm(z, x);
+    }
+  }
 
   return map;
 };

@@ -2,7 +2,6 @@ import { colors } from './boxColors';
 import { boxGeom_create } from './boxGeom';
 import { align } from './boxTransforms';
 import { camera_lookAt } from './camera';
-import { defaultColors } from './boxColors';
 import { component_create, entity_add } from './entity';
 import { geom_clone, geom_merge, translate } from './geom';
 import { keys_create } from './keys';
@@ -23,7 +22,7 @@ import {
   BODY_DYNAMIC,
   SHAPE_HEIGHTFIELD,
 } from'./physics';
-import { terrain_create, terrain_fromStringArray } from './terrain';
+import { terrain_create, terrain_fbm, terrain_fromStringArray } from './terrain';
 import { vec3_create, vec3_normalize, vec3_set } from './vec3';
 import { compose } from './utils';
 
@@ -88,28 +87,25 @@ export var createBasicMap = (gl, scene, camera) => {
   );
 
   var terrainMaterial = material_create();
+  vec3_set(terrainMaterial.color, 0.25, 0.28, 0.325);
   terrainMaterial.shininess = 2;
+
+  var terrainWidthSegments = 64;
+  var terrainHeightSegments = 64;
+
+  var terrainMap = terrain_fbm(terrainWidthSegments, terrainHeightSegments);
 
   var terrainMesh = mesh_create(
     terrain_create(
-      terrain_fromStringArray(
-        [
-          '02000 ',
-          '01110 ',
-          '00000 ',
-          '      ',
-        ],
-        '012',
-      ),
-      vec3_create(12, 1, 12),
-    )
-      .map(defaultColors([0.3, 0.8, 0.4]))
-      .reduce(geom_merge),
+      terrainMap,
+      vec3_create(6 * 26 / (terrainWidthSegments - 1), 1.5, 6 * 30 / (terrainHeightSegments - 1)),
+    ).reduce(geom_merge),
     terrainMaterial,
   );
 
   var terrainPhysics = physics_create(terrainMesh, BODY_STATIC);
   terrainPhysics.shape = SHAPE_HEIGHTFIELD;
+  vec3_set(terrainMesh.position, -13 * 6, 1, -14 * 6);
   entity_add(terrainMesh, terrainPhysics);
 
   object3d_add(map, terrainMesh);

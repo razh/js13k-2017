@@ -170,7 +170,7 @@ export var createMap = (gl, scene, camera) => {
 
   var ambient = vec3_create(0.5, 0.5, 0.55);
 
-  var light = light_create(vec3_create(0.2, 0.3, 0.4), 3);
+  var light = light_create(vec3_create(0.2, 0.3, 0.4), 4);
   vec3_set(light.position, 128, 48, 0);
 
   var directionalLights = [

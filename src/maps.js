@@ -67,7 +67,7 @@ export var createBasicMap = (gl, scene, camera) => {
   };
 
   entity_add(map, component_create({
-    update(dt) {
+    update(component, dt) {
       updateCamera(dt);
       physics_update(physics_bodies(map));
     },

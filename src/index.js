@@ -82,7 +82,7 @@ var update = () => {
 
   while (accumulatedTime >= dt) {
     object3d_traverse(scene, object => {
-      entity_update(object, dt);
+      entity_update(object, dt, scene);
     });
 
     accumulatedTime -= dt;

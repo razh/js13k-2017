@@ -82,7 +82,7 @@ export var ray_intersectTriangle = (() => {
   var p = vec3_create();
   var q = vec3_create();
 
-  return (ray, a, b, c, optionalTarget) => {
+  return (ray, a, b, c) => {
     vec3_subVectors(edge0, b, a);
     vec3_subVectors(edge1, c, a);
 
@@ -108,9 +108,7 @@ export var ray_intersectTriangle = (() => {
       return;
     }
 
-    var t = vec3_dot(edge1, q) / d;
-
-    return ray_at(ray, t, optionalTarget);
+    return vec3_dot(edge1, q) / d;
   };
 })();
 
@@ -122,17 +120,19 @@ export var ray_intersectsMesh = (() => {
   var intersectionPointWorld = vec3_create();
 
   var checkIntersection = (object, ray, a, b, c, point) => {
-    var intersect = ray_intersectTriangle(ray, a, b, c, point);
-    if (!intersect) {
+    var t = ray_intersectTriangle(ray, a, b, c);
+    if (!t) {
       return;
     }
 
+    ray_at(ray, t, point);
     Object.assign(intersectionPointWorld, point);
     vec3_applyMatrix4(intersectionPointWorld, object.matrixWorld);
 
     var distance = vec3_distanceTo(ray.origin, intersectionPointWorld);
 
     return {
+      t,
       object,
       distance,
       point: vec3_clone(intersectionPointWorld),
@@ -168,4 +168,10 @@ export var ray_applyMatrix4 = (r, m) => {
   vec3_applyMatrix4(r.origin, m);
   vec3_transformDirection(r.direction, m);
   return r;
+};
+
+export var ray_intersectObjects = (ray, objects) => {
+  return []
+    .concat(...objects.map(object => ray_intersectsMesh(ray, object)))
+    .sort((a, b) => a.distance - b.distance);
 };

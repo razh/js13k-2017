@@ -21,6 +21,7 @@ module.exports = {
     Uint8Array: false,
     Uint8ClampedArray: false,
     WeakMap: false,
+    Set: false,
   },
   rules: {
     'arrow-parens': ['error', 'as-needed'],

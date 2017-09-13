@@ -5,7 +5,7 @@ import { bufferGeom_fromGeom, bufferGeom_create } from './bufferGeom';
 import { camera_create, camera_updateProjectionMatrix } from './camera';
 import { controls_create } from './controls';
 import { entity_update } from './entity';
-import { createBasicMap } from './maps';
+import { createMap } from './maps';
 import { mat4_getInverse, mat4_multiplyMatrices } from './mat4';
 import {
   object3d_create,
@@ -52,7 +52,7 @@ scene.fogFar = 1000;
 var camera = camera_create();
 pointerLock_create(controls_create(camera), c);
 
-var lights = createBasicMap(gl, scene, camera);
+var lights = createMap(gl, scene, camera);
 
 // Shader
 var program = createShaderProgram(

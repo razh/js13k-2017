@@ -26,8 +26,11 @@ import { terrain_create, terrain_fbm, terrain_fromStringArray } from './terrain'
 import { vec3_create, vec3_normalize, vec3_set } from './vec3';
 import { compose } from './utils';
 
-export var createBasicMap = (gl, scene, camera) => {
-  gl.clearColor(0.7, 0.8, 0.9, 1);
+export var createMap = (gl, scene, camera) => {
+  var fogColor = [0.11, 0.12, 0.15];
+  gl.clearColor(...fogColor, 1);
+  vec3_set(scene.fogColor, ...fogColor);
+  scene.fogFar = 128;
 
   var map = object3d_create();
 
@@ -111,9 +114,9 @@ export var createBasicMap = (gl, scene, camera) => {
   object3d_add(map, terrainMesh);
   createWalls(map);
 
-  var ambient = vec3_create(0.5, 0.5, 0.5);
+  var ambient = vec3_create(0.5, 0.5, 0.55);
 
-  var light = light_create(vec3_create(1, 1, 1), 3);
+  var light = light_create(vec3_create(0.2, 0.3, 0.4), 2);
   vec3_set(light.position, 128, 48, 0);
 
   var directionalLights = [
@@ -171,7 +174,7 @@ var createWalls = scene => {
 
       compose(ny_pz, translate(10.5 * size * scaleX, 0, -1 * size))(boxGeom_create(5 * size, height, 5 * size)),
 
-      compose(ny_nz, translate(10.5 * size * scaleX, 0, 1 * size))(boxGeom_create(5 * size, height, 5 * size)),
+      compose(ny_nz, translate(9.5 * size * scaleX, 0, 1 * size))(boxGeom_create(5 * size, height, 5 * size)),
       compose(ny_nz, translate(6 * size * scaleX, 0, 1 * size))(boxGeom_create(2 * size, height, 5 * size)),
 
       compose(ny_nz, translate(11 * size * scaleX, 0, 7 * size))(boxGeom_create(2 * size, height, 2 * size)),
@@ -211,7 +214,13 @@ var createWalls = scene => {
   ].map(geom => object3d_add(
     scene,
     physics_add(
-      mesh_create(geom, material_create()),
+      mesh_create(
+        colors({
+          py: [0.5, 0.5, 0.55],
+          ny: [0.2, 0.2, 0.25],
+        })(geom),
+        material_create()
+      ),
       BODY_STATIC,
     ),
   ));

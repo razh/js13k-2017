@@ -1,8 +1,10 @@
+import { colors } from './boxColors';
 import { boxGeom_create } from './boxGeom';
+import { align } from './boxTransforms';
 import { camera_lookAt } from './camera';
 import { defaultColors } from './boxColors';
 import { component_create, entity_add } from './entity';
-import { geom_merge } from './geom';
+import { geom_clone, geom_merge, translate } from './geom';
 import { keys_create } from './keys';
 import { material_create } from './material';
 import { light_create } from './directionalLight';
@@ -23,6 +25,7 @@ import {
 } from'./physics';
 import { terrain_create, terrain_fromStringArray } from './terrain';
 import { vec3_create, vec3_normalize, vec3_set } from './vec3';
+import { compose } from './utils';
 
 export var createBasicMap = (gl, scene, camera) => {
   gl.clearColor(0.7, 0.8, 0.9, 1);
@@ -110,6 +113,7 @@ export var createBasicMap = (gl, scene, camera) => {
   entity_add(terrainMesh, terrainPhysics);
 
   object3d_add(map, terrainMesh);
+  createWalls(map);
 
   var ambient = vec3_create(0.5, 0.5, 0.5);
 
@@ -126,4 +130,93 @@ export var createBasicMap = (gl, scene, camera) => {
     ambient,
     directional: directionalLights,
   };
+};
+
+// Pac-Man
+var createWalls = scene => {
+  var size = 6;
+  var height = size;
+
+  var ny = align('ny');
+  var ny_pz = align('ny_pz');
+  var ny_nz = align('ny_nz');
+
+  var wallX = boxGeom_create(size, height, 30 * size);
+  var wallZ = boxGeom_create(28 * size, height, size);
+
+  var frontWall = compose(
+    ny_nz,
+    translate(0, 0, 16 * size),
+  )(geom_clone(wallZ));
+
+  var backWall = compose(
+    ny_pz,
+    translate(0, 0, -14 * size),
+  )(geom_clone(wallZ));
+
+  var leftWall = compose(
+    align('px_ny'),
+    translate(-13 * size, 0, size),
+  )(geom_clone(wallX));
+
+  var rightWall = compose(
+    align('nx_ny'),
+    translate(13 * size, 0, size),
+  )(geom_clone(wallX));
+
+  var blocks = scaleX => {
+    return [
+      compose(ny_pz, translate(10 * size * scaleX, 0, -10 * size))(boxGeom_create(4 * size, height, 3 * size)),
+      compose(ny_pz, translate(4.5 * size * scaleX, 0, -10 * size))(boxGeom_create(5 * size, height, 3 * size)),
+
+      compose(ny_pz, translate(10 * size * scaleX, 0, -7 * size))(boxGeom_create(4 * size, height, 2 * size)),
+      compose(ny_pz, translate(6 * size * scaleX, 0, -1 * size))(boxGeom_create(2 * size, height, 8 * size)),
+      compose(ny_pz, translate(3.5 * size * scaleX, 0, -4 * size))(boxGeom_create(3 * size, height, 2 * size)),
+
+      compose(ny_pz, translate(10.5 * size * scaleX, 0, -1 * size))(boxGeom_create(5 * size, height, 5 * size)),
+
+      compose(ny_nz, translate(10.5 * size * scaleX, 0, 1 * size))(boxGeom_create(5 * size, height, 5 * size)),
+      compose(ny_nz, translate(6 * size * scaleX, 0, 1 * size))(boxGeom_create(2 * size, height, 5 * size)),
+
+      compose(ny_nz, translate(11 * size * scaleX, 0, 7 * size))(boxGeom_create(2 * size, height, 2 * size)),
+      compose(ny_nz, translate(9 * size * scaleX, 0, 7 * size))(boxGeom_create(2 * size, height, 5 * size)),
+      compose(ny_nz, translate(4.5 * size * scaleX, 0, 7 * size))(boxGeom_create(5 * size, height, 2 * size)),
+
+      compose(ny_nz, translate(12 * size * scaleX, 0, 10 * size))(boxGeom_create(2 * size, height, 2 * size)),
+      compose(ny_nz, translate(6 * size * scaleX, 0, 10 * size))(boxGeom_create(2 * size, height, 3 * size)),
+
+      compose(ny_nz, translate(7 * size * scaleX, 0, 13 * size))(boxGeom_create(10 * size, height, 2 * size)),
+    ];
+  };
+
+  var centerBlocks = [
+    compose(ny, translate(0, 0, -12 * size))(boxGeom_create(2 * size, height, 4 * size)),
+
+    compose(ny, translate(0, 0, -8 * size))(boxGeom_create(8 * size, height, 2 * size)),
+    compose(ny, translate(0, 0, -5.5 * size))(boxGeom_create(2 * size, height, 3 * size)),
+
+    ny(boxGeom_create(8 * size, height, 6 * size)),
+
+    compose(ny, translate(0, 0, 5 * size))(boxGeom_create(8 * size, height, 2 * size)),
+    compose(ny, translate(0, 0, 7.5 * size))(boxGeom_create(2 * size, height, 3 * size)),
+
+    compose(ny, translate(0, 0, 11 * size))(boxGeom_create(8 * size, height, 2 * size)),
+    compose(ny, translate(0, 0, 13.5 * size))(boxGeom_create(2 * size, height, 3 * size)),
+  ];
+
+  [
+    frontWall,
+    backWall,
+    leftWall,
+    rightWall,
+    ...blocks(-1),
+    ...blocks(1),
+    ...centerBlocks,
+  ].map(geom => object3d_add(
+    scene,
+    physics_add(
+      mesh_create(geom, material_create()),
+      BODY_STATIC,
+    ),
+  ));
 };

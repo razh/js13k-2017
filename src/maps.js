@@ -22,9 +22,15 @@ import {
   BODY_DYNAMIC,
   SHAPE_HEIGHTFIELD,
 } from'./physics';
-import { ray_create, ray_intersectsMesh } from './ray';
+import { ray_create, ray_intersectObjects } from './ray';
 import { terrain_create, terrain_fbm, terrain_fromStringArray } from './terrain';
-import { vec3_create, vec3_normalize, vec3_set } from './vec3';
+import {
+  vec3_create,
+  vec3_length,
+  vec3_normalize,
+  vec3_set,
+  vec3_subVectors,
+} from './vec3';
 import { compose } from './utils';
 
 export var createMap = (gl, scene, camera) => {
@@ -41,7 +47,7 @@ export var createMap = (gl, scene, camera) => {
 
   vec3_set(camera.position, 64, 64, 64);
   camera_lookAt(camera, vec3_create());
-  var cameraPhysics = physics_create(mesh_create(boxGeom_create(2, 2, 2)), BODY_DYNAMIC);
+  var cameraPhysics = physics_create(mesh_create(boxGeom_create(2, 4, 2)), BODY_DYNAMIC);
   entity_add(camera, cameraPhysics);
 
   var cameraObject = object3d_create();
@@ -81,20 +87,9 @@ export var createMap = (gl, scene, camera) => {
     },
   }));
 
-  object3d_add(
-    map,
-    physics_add(
-      mesh_create(
-        boxGeom_create(8, 8, 8),
-        material_create(),
-      ),
-      BODY_STATIC,
-    ),
-  );
-
   var terrainMaterial = material_create();
   vec3_set(terrainMaterial.color, 0.25, 0.28, 0.325);
-  terrainMaterial.shininess = 2;
+  terrainMaterial.shininess = 10;
 
   var terrainWidthSegments = 64;
   var terrainHeightSegments = 64;
@@ -115,11 +110,17 @@ export var createMap = (gl, scene, camera) => {
   entity_add(terrainMesh, terrainPhysics);
 
   object3d_add(map, terrainMesh);
-  createWalls(map);
+  var walls = createWalls(6);
+  walls.map(wall => object3d_add(map, wall));
+
+  var nodes = createNodes(6);
+  var navMesh = generateNavMesh(nodes, walls);
+  scene.nodes = nodes;
+  scene.navMesh = navMesh;
 
   var ambient = vec3_create(0.5, 0.5, 0.55);
 
-  var light = light_create(vec3_create(0.2, 0.3, 0.4), 2);
+  var light = light_create(vec3_create(0.2, 0.3, 0.4), 3);
   vec3_set(light.position, 128, 48, 0);
 
   var directionalLights = [
@@ -135,8 +136,7 @@ export var createMap = (gl, scene, camera) => {
 };
 
 // Pac-Man
-var createWalls = scene => {
-  var size = 6;
+var createWalls = size => {
   var height = size;
 
   var ny = align('ny');
@@ -166,28 +166,64 @@ var createWalls = scene => {
     translate(13 * size, 0, size),
   )(geom_clone(wallX));
 
+  /*
+  Left 3/4 block
+  ▊▊▊▊▊▊▊▊▊▊▊▊▊▊▊▊▊▊▊▊▊▊▊▊▊▊▊▊
+  ▊            ▊▊            ▊
+  ▊ ▊▊▊▊ ▊▊▊▊▊ ▊▊ ▊▊▊▊▊ ▊▊▊▊ ▊ Row 0
+  ▊ ▊▊▊▊ ▊▊▊▊▊ ▊▊ ▊▊▊▊▊ ▊▊▊▊ ▊
+  ▊ ▊▊▊▊ ▊▊▊▊▊ ▊▊ ▊▊▊▊▊ ▊▊▊▊ ▊
+  ▊                          ▊
+  ▊ ▊▊▊▊ ▊▊ ▊▊▊▊▊▊▊▊ ▊▊ ▊▊▊▊ ▊ Row 1
+  ▊ ▊▊▊▊ ▊▊ ▊▊▊▊▊▊▊▊ ▊▊ ▊▊▊▊ ▊
+  ▊      ▊▊    ▊▊    ▊▊      ▊
+  ▊▊▊▊▊▊ ▊▊▊▊▊ ▊▊ ▊▊▊▊▊ ▊▊▊▊▊▊ Row 2
+  ▊▊▊▊▊▊ ▊▊▊▊▊ ▊▊ ▊▊▊▊▊ ▊▊▊▊▊▊
+  ▊▊▊▊▊▊ ▊▊          ▊▊ ▊▊▊▊▊▊
+  ▊▊▊▊▊▊ ▊▊ ▊▊▊▊▊▊▊▊ ▊▊ ▊▊▊▊▊▊
+  ▊▊▊▊▊▊ ▊▊ ▊▊▊▊▊▊▊▊ ▊▊ ▊▊▊▊▊▊
+            ▊▊▊▊▊▊▊▊
+  ▊▊▊▊▊▊ ▊▊ ▊▊▊▊▊▊▊▊ ▊▊ ▊▊▊▊▊▊ Row 3
+  ▊▊▊▊▊▊ ▊▊ ▊▊▊▊▊▊▊▊ ▊▊ ▊▊▊▊▊▊
+  ▊▊▊▊▊▊ ▊▊          ▊▊ ▊▊▊▊▊▊
+  ▊▊▊▊▊▊ ▊▊ ▊▊▊▊▊▊▊▊ ▊▊ ▊▊▊▊▊▊
+  ▊▊▊▊▊▊ ▊▊ ▊▊▊▊▊▊▊▊ ▊▊ ▊▊▊▊▊▊
+  ▊            ▊▊            ▊
+  ▊ ▊▊▊▊ ▊▊▊▊▊ ▊▊ ▊▊▊▊▊ ▊▊▊▊ ▊ Row 4
+  ▊ ▊▊▊▊ ▊▊▊▊▊ ▊▊ ▊▊▊▊▊ ▊▊▊▊ ▊
+  ▊   ▊▊                ▊▊   ▊
+  ▊▊▊ ▊▊ ▊▊ ▊▊▊▊▊▊▊▊ ▊▊ ▊▊ ▊▊▊ Row 5
+  ▊▊▊ ▊▊ ▊▊ ▊▊▊▊▊▊▊▊ ▊▊ ▊▊ ▊▊▊
+  ▊      ▊▊    ▊▊    ▊▊      ▊
+  ▊ ▊▊▊▊▊▊▊▊▊▊ ▊▊ ▊▊▊▊▊▊▊▊▊▊ ▊ Row 6
+  ▊ ▊▊▊▊▊▊▊▊▊▊ ▊▊ ▊▊▊▊▊▊▊▊▊▊ ▊
+  ▊                          ▊
+  ▊▊▊▊▊▊▊▊▊▊▊▊▊▊▊▊▊▊▊▊▊▊▊▊▊▊▊▊
+   */
   var blocks = scaleX => {
+    var t = (x, z) => translate(x * size * scaleX, 0, z * size);
+
     return [
-      compose(ny_pz, translate(10 * size * scaleX, 0, -10 * size))(boxGeom_create(4 * size, height, 3 * size)),
-      compose(ny_pz, translate(4.5 * size * scaleX, 0, -10 * size))(boxGeom_create(5 * size, height, 3 * size)),
+      compose(ny_pz, t(10, -10))(boxGeom_create(4 * size, height, 3 * size)),
+      compose(ny_pz, t(4.5, -10))(boxGeom_create(5 * size, height, 3 * size)),
 
-      compose(ny_pz, translate(10 * size * scaleX, 0, -7 * size))(boxGeom_create(4 * size, height, 2 * size)),
-      compose(ny_pz, translate(6 * size * scaleX, 0, -1 * size))(boxGeom_create(2 * size, height, 8 * size)),
-      compose(ny_pz, translate(3.5 * size * scaleX, 0, -4 * size))(boxGeom_create(3 * size, height, 2 * size)),
+      compose(ny_pz, t(10, -7))(boxGeom_create(4 * size, height, 2 * size)),
+      compose(ny_pz, t(6, -1))(boxGeom_create(2 * size, height, 8 * size)),
+      compose(ny_pz, t(3.5, -4))(boxGeom_create(3 * size, height, 2 * size)),
 
-      compose(ny_pz, translate(10.5 * size * scaleX, 0, -1 * size))(boxGeom_create(5 * size, height, 5 * size)),
+      compose(ny_pz, t(10.5, -1))(boxGeom_create(5 * size, height, 5 * size)),
 
-      compose(ny_nz, translate(9.5 * size * scaleX, 0, 1 * size))(boxGeom_create(5 * size, height, 5 * size)),
-      compose(ny_nz, translate(6 * size * scaleX, 0, 1 * size))(boxGeom_create(2 * size, height, 5 * size)),
+      compose(ny_nz, t(9.5, 1))(boxGeom_create(5 * size, height, 5 * size)),
+      compose(ny_nz, t(6, 1))(boxGeom_create(2 * size, height, 5 * size)),
 
-      compose(ny_nz, translate(11 * size * scaleX, 0, 7 * size))(boxGeom_create(2 * size, height, 2 * size)),
-      compose(ny_nz, translate(9 * size * scaleX, 0, 7 * size))(boxGeom_create(2 * size, height, 5 * size)),
-      compose(ny_nz, translate(4.5 * size * scaleX, 0, 7 * size))(boxGeom_create(5 * size, height, 2 * size)),
+      compose(ny_nz, t(11, 7))(boxGeom_create(2 * size, height, 2 * size)),
+      compose(ny_nz, t(9, 7))(boxGeom_create(2 * size, height, 5 * size)),
+      compose(ny_nz, t(4.5, 7))(boxGeom_create(5 * size, height, 2 * size)),
 
-      compose(ny_nz, translate(12 * size * scaleX, 0, 10 * size))(boxGeom_create(2 * size, height, 2 * size)),
-      compose(ny_nz, translate(6 * size * scaleX, 0, 10 * size))(boxGeom_create(2 * size, height, 3 * size)),
+      compose(ny_nz, t(12, 10))(boxGeom_create(2 * size, height, 2 * size)),
+      compose(ny_nz, t(6, 10))(boxGeom_create(2 * size, height, 3 * size)),
 
-      compose(ny_nz, translate(7 * size * scaleX, 0, 13 * size))(boxGeom_create(10 * size, height, 2 * size)),
+      compose(ny_nz, t(7, 13))(boxGeom_create(10 * size, height, 2 * size)),
     ];
   };
 
@@ -206,7 +242,12 @@ var createWalls = scene => {
     compose(ny, translate(0, 0, 13.5 * size))(boxGeom_create(2 * size, height, 3 * size)),
   ];
 
-  [
+  var blockColors = colors({
+    py: [0.5, 0.5, 0.55],
+    ny: [0.2, 0.2, 0.25],
+  });
+
+  return [
     frontWall,
     backWall,
     leftWall,
@@ -214,17 +255,113 @@ var createWalls = scene => {
     ...blocks(-1),
     ...blocks(1),
     ...centerBlocks,
-  ].map(geom => object3d_add(
-    scene,
+  ].map(geom => (
     physics_add(
       mesh_create(
-        colors({
-          py: [0.5, 0.5, 0.55],
-          ny: [0.2, 0.2, 0.25],
-        })(geom),
-        material_create()
+        blockColors(geom),
+        material_create(),
       ),
       BODY_STATIC,
-    ),
+    )
   ));
+};
+
+// Hardcoded path-finding nodes.
+var createNodes = size => {
+  var nodes = scaleX => {
+    return [
+      [12.5, -13.5],
+      [7.5, -13.5],
+      [1.5, -13.5],
+
+      [12.5, -9.5],
+      [7.5, -9.5],
+      [4.5, -9.5],
+      [1.5, -9.5],
+
+      [12.5, -6.5],
+      [7.5, -6.5],
+      [4.5, -6.5],
+      [1.5, -6.5],
+
+      [4.5, -3.5],
+      [1.5, -3.5],
+
+      [12.5, 0],
+      [7.5, 0],
+      [4.5, 0],
+
+      [4.5, 3.5],
+
+      [12.5, 6.5],
+      [7.5, 6.5],
+      [4.5, 6.5],
+      [1.5, 6.5],
+
+      [12.5, 9.5],
+      [10.5, 9.5],
+      [7.5, 9.5],
+      [4.5, 9.5],
+      [1.5, 9.5],
+
+      [12.5, 12.5],
+      [10.5, 12.5],
+      [7.5, 12.5],
+      [4.5, 12.5],
+      [1.5, 12.5],
+
+      [12.5, 15.5],
+      [1.5, 15.5],
+    ].map(([x, z]) => vec3_create(x * size * scaleX, 0, z * size));
+  };
+
+  return [
+    ...nodes(-1),
+    ...nodes(1),
+  ];
+};
+
+// Test if nodes are placed correctly.
+// eslint-disable-next-line no-unused-vars
+var debugNodes = (scene, size) => {
+  var nodes = createNodes(size);
+  var nodeGeom = boxGeom_create(1, 1, 1);
+  var nodeMaterial = material_create();
+  vec3_set(nodeMaterial.emissive, 1, 0, 0);
+  nodes.map(vector => {
+    var node = mesh_create(nodeGeom, nodeMaterial);
+    Object.assign(node.position, vector);
+    node.position.y = size;
+    object3d_add(scene, node);
+  });
+};
+
+var generateNavMesh = (nodes, walls) => {
+  var adjacencyMatrix = [];
+
+  var i;
+  for (i = 0; i < nodes.length; i++) {
+    adjacencyMatrix[i] = [];
+  }
+
+  var ray = ray_create();
+
+  for (i = 0; i < nodes.length; i++) {
+    adjacencyMatrix[i] = [];
+    Object.assign(ray.origin, nodes[i]);
+
+    for (var j = i; j < nodes.length; j++) {
+      vec3_subVectors(ray.direction, nodes[j], nodes[i]);
+      var distance = vec3_length(ray.direction);
+      var intersections = ray_intersectObjects(ray, walls)
+        .filter(intersection => intersection.t > 0);
+
+      if (!intersections.length || distance < intersections[0].distance) {
+        adjacencyMatrix[i].push(j);
+        adjacencyMatrix[j].push(i);
+      }
+    }
+  }
+
+  return adjacencyMatrix;
 };

@@ -150,14 +150,14 @@ export var physics_update = (() => {
   return bodies => {
     var contacts = [];
 
-    bodies.map(bodyA => {
-      bodies.map(bodyB => {
-        if (
-          // Same object.
-          bodyA === bodyB ||
-          // Immovable objects.
-          bodyA.physics === BODY_STATIC && bodyB.physics === BODY_STATIC
-        ) {
+    for (var i = 0; i < bodies.length; i++) {
+      var bodyA = bodies[i];
+
+      for (var j = i + 1; j < bodies.length; j++) {
+        var bodyB = bodies[j];
+
+        // Immovable objects.
+        if (bodyA.physics === BODY_STATIC && bodyB.physics === BODY_STATIC) {
           return;
         }
 
@@ -174,8 +174,8 @@ export var physics_update = (() => {
             contacts.push(contact);
           }
         }
-      });
-    });
+      }
+    }
 
     return contacts;
   };

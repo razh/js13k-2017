@@ -27,10 +27,17 @@ export var SHAPE_BOX = 1;
 export var SHAPE_HEIGHTFIELD = 2;
 
 export var physics_create = (entity, physics) => {
+  var vector = vec3_create();
+
   return component_create({
     physics,
     shape: SHAPE_BOX,
     boundingBox: box3_setFromObject(box3_create(), entity),
+    velocity: vec3_create(),
+    update(component, dt) {
+      Object.assign(vector, component.velocity);
+      vec3_add(component.parent.position, vec3_multiplyScalar(vector, dt));
+    },
   });
 };
 
@@ -143,6 +150,8 @@ export var physics_update = (() => {
   var boxB = box3_create();
 
   return bodies => {
+    var contacts = [];
+
     bodies.map(bodyA => {
       bodies.map(bodyB => {
         if (
@@ -162,9 +171,14 @@ export var physics_update = (() => {
         box3_translate(box3_copy(boxB, bodyB.boundingBox), objectB.position);
 
         if (box3_intersectsBox(boxA, boxB)) {
-          narrowPhase[bodyA.shape | bodyB.shape](bodyA, bodyB, boxA, boxB);
+          var contact = narrowPhase[bodyA.shape | bodyB.shape](bodyA, bodyB, boxA, boxB);
+          if (contact) {
+            contacts.push(contact);
+          }
         }
       });
     });
+
+    return contacts;
   };
 })();

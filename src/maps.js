@@ -22,11 +22,14 @@ import {
   BODY_DYNAMIC,
   SHAPE_HEIGHTFIELD,
 } from'./physics';
+import { ray_create, ray_intersectsMesh } from './ray';
 import { terrain_create, terrain_fbm, terrain_fromStringArray } from './terrain';
 import { vec3_create, vec3_normalize, vec3_set } from './vec3';
 import { compose } from './utils';
 
 export var createMap = (gl, scene, camera) => {
+  scene.player = camera;
+
   var fogColor = [0.11, 0.12, 0.15];
   gl.clearColor(...fogColor, 1);
   vec3_set(scene.fogColor, ...fogColor);
@@ -74,7 +77,7 @@ export var createMap = (gl, scene, camera) => {
   entity_add(map, component_create({
     update(component, dt) {
       updateCamera(dt);
-      physics_update(physics_bodies(map));
+      scene.physics = physics_update(physics_bodies(map));
     },
   }));
 

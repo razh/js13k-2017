@@ -15,6 +15,7 @@ import { ray_create, ray_intersectsMesh } from './ray';
 import {
   vec3_create,
   vec3_add,
+  vec3_addScaledVector,
   vec3_multiplyScalar,
   vec3_set,
   vec3_sub,
@@ -27,16 +28,13 @@ export var SHAPE_BOX = 1;
 export var SHAPE_HEIGHTFIELD = 2;
 
 export var physics_create = (entity, physics) => {
-  var vector = vec3_create();
-
   return component_create({
     physics,
     shape: SHAPE_BOX,
     boundingBox: box3_setFromObject(box3_create(), entity),
     velocity: vec3_create(),
     update(component, dt) {
-      Object.assign(vector, component.velocity);
-      vec3_add(component.parent.position, vec3_multiplyScalar(vector, dt));
+      vec3_addScaledVector(component.parent.position, component.velocity, dt);
     },
   });
 };

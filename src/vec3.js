@@ -53,6 +53,13 @@ export var vec3_addVectors = (v, a, b) => {
   return v;
 };
 
+export var vec3_addScaledVector = (a, b, s) => {
+  a.x += b.x * s;
+  a.y += b.y * s;
+  a.z += b.z * s;
+  return a;
+};
+
 export var vec3_sub = (a, b) => {
   a.x -= b.x;
   a.y -= b.y;

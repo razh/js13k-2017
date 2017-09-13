@@ -38,7 +38,7 @@ import { compose, sample } from './utils';
 
 export var createMap = (gl, scene, camera) => {
   scene.player = camera;
-  scene.player.meta = { hits: 0 };
+  scene.player.state = { hits: 0 };
 
   var fogColor = [0.11, 0.12, 0.15];
   gl.clearColor(...fogColor, 1);
@@ -97,10 +97,11 @@ export var createMap = (gl, scene, camera) => {
       camera.position.y -= 16 * dt;
       _h.textContent = Math.round(health);
 
-      if (scene.player.meta.hits > 0) {
+      if (scene.player.state.hits > 0) {
         health -= 20 * dt;
       }
 
+      scene.player.state.hits = 0;
       if (health <= 0) {
         object3d_remove(scene, map);
 

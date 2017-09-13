@@ -188,7 +188,7 @@ export var seeker_create = () => {
         rotationVelocity = 0;
         state = STATE_FOUND;
         _o.classList.add('e');
-        player.meta.hits++;
+        player.state.hits++;
         setTimeout(() => _o.classList.remove('e'), 300);
       } else {
         rotationVelocity = defaultRotationVelocity;

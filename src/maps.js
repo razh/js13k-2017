@@ -399,13 +399,12 @@ var generateNavMesh = (nodes, walls) => {
   var ray = ray_create();
 
   for (i = 0; i < nodes.length; i++) {
-    Object.assign(ray.origin, nodes[i]);
+    Object.assign(ray.origin, nodes[i], { y: 3 });
 
     for (var j = i + 1; j < nodes.length; j++) {
       vec3_subVectors(ray.direction, nodes[j], nodes[i]);
       var distance = vec3_length(ray.direction);
-      var intersections = ray_intersectObjects(ray, walls)
-        .filter(intersection => intersection.t > 0);
+      var intersections = ray_intersectObjects(ray, walls);
 
       if (!intersections.length || distance < intersections[0].distance) {
         adjacencyList[i].push(j);

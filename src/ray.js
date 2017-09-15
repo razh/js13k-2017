@@ -4,6 +4,7 @@ import {
   vec3_add,
   vec3_applyMatrix4,
   vec3_clone,
+  vec3_cross,
   vec3_crossVectors,
   vec3_distanceTo,
   vec3_dot,
@@ -76,39 +77,51 @@ export var ray_intersectBox = (ray, box, optionalTarget) => {
 };
 
 export var ray_intersectTriangle = (() => {
-  var delta = vec3_create();
-  var edge0 = vec3_create();
+  var diff = vec3_create();
   var edge1 = vec3_create();
-  var p = vec3_create();
-  var q = vec3_create();
+  var edge2 = vec3_create();
+  var normal = vec3_create();
 
-  return (ray, a, b, c) => {
-    vec3_subVectors(edge0, b, a);
-    vec3_subVectors(edge1, c, a);
+  return (ray, a, b, c, optionalTarget) => {
+    vec3_subVectors(edge1, b, a);
+    vec3_subVectors(edge2, c, a);
 
-    vec3_crossVectors(p, ray.direction, edge1);
+    vec3_crossVectors(normal, edge1, edge2);
 
     // Determinant.
-    var d = vec3_dot(edge0, p);
-    if (!d) {
+    var DdN = vec3_dot(ray.direction, normal);
+    var sign = 1;
+
+    if (DdN > 0) {
+      return;
+    } if (DdN < 0) {
+      sign = -1;
+      DdN *= -1;
+    } else {
       return;
     }
 
-    // u.
-    vec3_subVectors(delta, ray.origin, a);
-    var u = vec3_dot(delta, p);
-    if (0 > u || u > d) {
+    vec3_subVectors(diff, ray.origin, a);
+    var DdQxE2 = sign * vec3_dot(ray.direction, vec3_crossVectors(edge2, diff, edge2));
+    if (DdQxE2 < 0) {
       return;
     }
 
-    // v.
-    vec3_crossVectors(q, delta, edge0);
-    var v = vec3_dot(ray.direction, q);
-    if (0 > v || (u + v) > d) {
+    var DdE1xQ = sign * vec3_dot(ray.direction, vec3_cross(edge1, diff));
+    if (DdE1xQ < 0) {
       return;
     }
 
-    return vec3_dot(edge1, q) / d;
+    if ((DdQxE2 + DdE1xQ) > DdN) {
+      return;
+    }
+
+    var QdN = -sign * vec3_dot(diff, normal);
+    if (QdN < 0) {
+      return;
+    }
+
+    return ray_at(ray, QdN / DdN, optionalTarget);
   };
 })();
 
@@ -120,19 +133,17 @@ export var ray_intersectsMesh = (() => {
   var intersectionPointWorld = vec3_create();
 
   var checkIntersection = (object, ray, a, b, c, point) => {
-    var t = ray_intersectTriangle(ray, a, b, c);
-    if (!t) {
+    var intersect = ray_intersectTriangle(ray, a, b, c, point);
+    if (!intersect) {
       return;
     }
 
-    ray_at(ray, t, point);
     Object.assign(intersectionPointWorld, point);
     vec3_applyMatrix4(intersectionPointWorld, object.matrixWorld);
 
     var distance = vec3_distanceTo(ray.origin, intersectionPointWorld);
 
     return {
-      t,
       object,
       distance,
       point: vec3_clone(intersectionPointWorld),

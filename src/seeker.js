@@ -157,8 +157,7 @@ export var seeker_create = () => {
       object3d_lookAt(seeker, target);
 
       // Only get intersections that the seeker is facing towards.
-      var intersections = ray_intersectObjects(ray, walls)
-        .filter(intersection => intersection.t > 0);
+      var intersections = ray_intersectObjects(ray, walls);
 
       var distance;
       if (intersections.length) {

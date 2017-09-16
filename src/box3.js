@@ -63,6 +63,14 @@ export var box3_setFromObject = (() => {
   };
 })();
 
+export var box3_containsPoint = (box, point) => {
+  return (
+    box.min.x <= point.x && point.x <= box.max.x &&
+    box.min.y <= point.y && point.y <= box.max.y &&
+    box.min.z <= point.z && point.z <= box.max.z
+  );
+};
+
 export var box3_intersectsBox = (a, b) => {
   return !(
     a.max.x < b.min.x || a.min.x > b.max.x ||

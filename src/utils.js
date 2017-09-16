@@ -6,4 +6,9 @@ export var sample = array => {
   return array[Math.floor(Math.random() * array.length)];
 };
 
-export var uniq = array => [...new Set(array)];
+export var remove = (array, element) => {
+  var index = array.indexOf(element);
+  if (index >= 0) {
+    array.splice(index, 1);
+  }
+};

@@ -12,6 +12,7 @@ import { mesh_create } from './mesh';
 import {
   object3d_create,
   object3d_add,
+  object3d_lookAt,
   object3d_remove,
   object3d_translateOnAxis,
 } from './object3d';
@@ -150,6 +151,7 @@ export var createMap = (gl, scene, camera) => {
   scene.nodes = nodes;
   scene.navMesh = navMesh;
   // debugNodes(map, 6);
+  // debugEdges(map, nodes, navMesh, 6);
 
   for (var i = 0; i < 6; i++) {
     var seeker = seeker_create();
@@ -375,22 +377,55 @@ var createNodes = size => {
 
 // Test if nodes are placed correctly.
 // eslint-disable-next-line no-unused-vars
-var debugNodes = (scene, size) => {
+var debugNodes = (scene, size, indices = []) => {
   var nodes = createNodes(size);
   var nodeGeom = boxGeom_create(1, 1, 1);
   var nodeMaterial = material_create();
   vec3_set(nodeMaterial.emissive, 1, 0, 0);
-  nodes.map((vector, i) => {
-    var node = mesh_create(nodeGeom, [46, 51, 52, 53, 54].indexOf(i) >= 0 ? material_create() : nodeMaterial);
+
+  nodes.map((vector, index) => {
+    var node = mesh_create(
+      nodeGeom,
+      indices.includes(index) ? material_create() : nodeMaterial,
+    );
     Object.assign(node.position, vector);
     node.position.y = size;
     object3d_add(scene, node);
   });
 };
 
+// eslint-disable-next-line no-unused-vars
+var debugEdges = (scene, nodes, adjacencyList, size, indices = []) => {
+  var edgeGeom = align('nz')(boxGeom_create(0.1, 0.1, 1));
+  var edgeMaterial = material_create();
+  vec3_set(edgeMaterial.emissive, 0, 1, 0);
+
+  var delta = vec3_create();
+
+  adjacencyList.map((edges, sourceIndex) => {
+    var source = nodes[sourceIndex];
+
+    edges.map(targetIndex => {
+      var target = nodes[targetIndex];
+
+      vec3_subVectors(delta, target, source);
+      var edge = mesh_create(
+        edgeGeom,
+        indices.includes(sourceIndex) || indices.includes(targetIndex)
+          ? material_create()
+          : edgeMaterial,
+      );
+      Object.assign(edge.position, source);
+      edge.scale.z = 0.4 * vec3_length(delta);
+      object3d_lookAt(edge, target);
+      edge.position.y = size;
+      object3d_add(scene, edge);
+    });
+  });
+};
+
 var generateNavMesh = (nodes, walls) => {
   var adjacencyList = [];
-
   var i;
   for (i = 0; i < nodes.length; i++) {
     adjacencyList[i] = [];

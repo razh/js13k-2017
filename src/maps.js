@@ -30,12 +30,13 @@ import { ray_create, ray_intersectObjects } from './ray';
 import { terrain_create, terrain_fbm, terrain_fromStringArray } from './terrain';
 import {
   vec3_create,
+  vec3_dot,
   vec3_length,
   vec3_normalize,
   vec3_set,
   vec3_subVectors,
 } from './vec3';
-import { compose, sample } from './utils';
+import { compose, remove, sample } from './utils';
 
 export var createMap = (gl, scene, camera) => {
   scene.player = camera;
@@ -424,29 +425,60 @@ var debugEdges = (scene, nodes, adjacencyList, size, indices = []) => {
   });
 };
 
-var generateNavMesh = (nodes, walls) => {
-  var adjacencyList = [];
-  var i;
-  for (i = 0; i < nodes.length; i++) {
-    adjacencyList[i] = [];
-  }
+var generateNavMesh = (nodes, obstacles) => {
+  var adjacencyList = nodes.map(() => []);
 
+  // Calculate node visibility with line-of-sight.
   var ray = ray_create();
-
-  for (i = 0; i < nodes.length; i++) {
-    Object.assign(ray.origin, nodes[i], { y: 3 });
+  nodes.map((origin, i) => {
+    Object.assign(ray.origin, origin);
 
     for (var j = i + 1; j < nodes.length; j++) {
-      vec3_subVectors(ray.direction, nodes[j], nodes[i]);
+      vec3_subVectors(ray.direction, nodes[j], origin);
       var distance = vec3_length(ray.direction);
-      var intersections = ray_intersectObjects(ray, walls);
+      var intersections = ray_intersectObjects(ray, obstacles);
 
       if (!intersections.length || distance < intersections[0].distance) {
         adjacencyList[i].push(j);
         adjacencyList[j].push(i);
       }
     }
-  }
+  });
 
-  return adjacencyList;
+  // Remove edges within a 45 degree cone.
+  var tolerance = Math.cos((Math.PI / 4) / 2);
+  var v0 = vec3_create();
+  var v1 = vec3_create();
+  var v0n = vec3_create();
+  var v1n = vec3_create();
+
+  return adjacencyList.map((edges, index) => {
+    var filteredEdges = [...edges];
+    var a = nodes[index];
+
+    for (var i = 0; i < edges.length; i++) {
+      var b = nodes[edges[i]];
+
+      for (var j = i + 1; j < edges.length; j++) {
+        var c = nodes[edges[j]];
+
+        vec3_subVectors(v0, b, a);
+        vec3_subVectors(v1, c, a);
+
+        vec3_normalize(Object.assign(v0n, v0));
+        vec3_normalize(Object.assign(v1n, v1));
+
+        if (vec3_dot(v0n, v1n) >= tolerance) {
+          // Remove longer redundant edge.
+          if (vec3_length(v0) < vec3_length(v1)) {
+            remove(filteredEdges, edges[j]);
+          } else {
+            remove(filteredEdges, edges[i]);
+          }
+        }
+      }
+    }
+
+    return filteredEdges;
+  });
 };

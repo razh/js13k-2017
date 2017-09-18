@@ -227,7 +227,7 @@ export var seeker_create = () => {
           distanceToNode = vec3_length(vector);
         }
 
-        if (!currentNode || distanceToNode < 5) {
+        if (!currentNode || distanceToNode < 1) {
           do {
             var candidateNodes = navMesh[nodes.indexOf(previousNode)];
             currentNode = nodes[sample(candidateNodes)];
@@ -242,7 +242,7 @@ export var seeker_create = () => {
       }
 
       velocity.y = 0;
-      vec3_multiplyScalar(vec3_normalize(velocity), 10);
+      vec3_multiplyScalar(vec3_normalize(velocity), 12);
     },
   }));
 };

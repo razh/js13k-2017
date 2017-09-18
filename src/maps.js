@@ -66,7 +66,7 @@ export var createMap = (gl, scene, camera) => {
   var health = 100;
 
   var updateCamera = dt => {
-    var speed = 6;
+    var speed = 16;
 
     var x = 0;
     var z = 0;
@@ -86,11 +86,7 @@ export var createMap = (gl, scene, camera) => {
 
     vec3_normalize(vec3_set(cameraDirection, x, 0, z));
     object3d_translateOnAxis(camera, cameraDirection, speed * dt);
-
-    camera.position.y = Math.min(camera.position.y, 8);
   };
-
-  var now = Date.now();
 
   entity_add(map, component_create({
     update(component, dt, scene) {
@@ -100,7 +96,7 @@ export var createMap = (gl, scene, camera) => {
       _h.textContent = Math.round(health);
 
       if (scene.player.state.hits > 0) {
-        health -= 20 * dt;
+        health -= 10 * dt;
       }
 
       scene.player.state.hits = 0;

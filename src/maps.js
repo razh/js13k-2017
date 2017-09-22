@@ -445,8 +445,6 @@ var generateNavMesh = (nodes, obstacles) => {
   var tolerance = Math.cos((Math.PI / 4) / 2);
   var v0 = vec3_create();
   var v1 = vec3_create();
-  var v0n = vec3_create();
-  var v1n = vec3_create();
 
   return adjacencyList.map((edges, index) => {
     var filteredEdges = [...edges];
@@ -455,18 +453,20 @@ var generateNavMesh = (nodes, obstacles) => {
     for (var i = 0; i < edges.length; i++) {
       var b = nodes[edges[i]];
 
+      vec3_subVectors(v0, b, a);
+      var length0 = vec3_length(v0);
+      vec3_normalize(v0);
+
       for (var j = i + 1; j < edges.length; j++) {
         var c = nodes[edges[j]];
 
-        vec3_subVectors(v0, b, a);
         vec3_subVectors(v1, c, a);
+        var length1 = vec3_length(v1);
+        vec3_normalize(v1);
 
-        vec3_normalize(Object.assign(v0n, v0));
-        vec3_normalize(Object.assign(v1n, v1));
-
-        if (vec3_dot(v0n, v1n) >= tolerance) {
+        if (vec3_dot(v0, v1) >= tolerance) {
           // Remove longer redundant edge.
-          if (vec3_length(v0) < vec3_length(v1)) {
+          if (length0 < length1) {
             remove(filteredEdges, edges[j]);
           } else {
             remove(filteredEdges, edges[i]);

@@ -1,21 +1,21 @@
-import { colors } from './boxColors';
-import { boxGeom_create } from './boxGeom';
-import { align } from './boxTransforms';
-import { camera_lookAt } from './camera';
-import { light_create } from './directionalLight';
-import { component_create, entity_add } from './entity';
-import { geom_clone, geom_merge, translate } from './geom';
-import { keys_create } from './keys';
-import { randFloat } from './math';
-import { material_create } from './material';
-import { mesh_create } from './mesh';
+import { colors } from './boxColors.js';
+import { boxGeom_create } from './boxGeom.js';
+import { align } from './boxTransforms.js';
+import { camera_lookAt } from './camera.js';
+import { light_create } from './directionalLight.js';
+import { component_create, entity_add } from './entity.js';
+import { geom_clone, geom_merge, translate } from './geom.js';
+import { keys_create } from './keys.js';
+import { randFloat } from './math.js';
+import { material_create } from './material.js';
+import { mesh_create } from './mesh.js';
 import {
   object3d_create,
   object3d_add,
   object3d_lookAt,
   object3d_remove,
   object3d_translateOnAxis,
-} from './object3d';
+} from './object3d.js';
 import {
   physics_create,
   physics_add,
@@ -24,10 +24,10 @@ import {
   BODY_STATIC,
   BODY_DYNAMIC,
   SHAPE_HEIGHTFIELD,
-} from'./physics';
-import { seeker_create } from './seeker';
-import { ray_create, ray_intersectObjects } from './ray';
-import { terrain_create, terrain_fbm, terrain_fromStringArray } from './terrain';
+} from'./physics.js';
+import { seeker_create } from './seeker.js';
+import { ray_create, ray_intersectObjects } from './ray.js';
+import { terrain_create, terrain_fbm, terrain_fromStringArray } from './terrain.js';
 import {
   vec3_create,
   vec3_dot,
@@ -35,8 +35,8 @@ import {
   vec3_normalize,
   vec3_set,
   vec3_subVectors,
-} from './vec3';
-import { compose, remove, sample } from './utils';
+} from './vec3.js';
+import { compose, remove, sample } from './utils.js';
 
 export var createMap = (gl, scene, camera) => {
   scene.player = camera;

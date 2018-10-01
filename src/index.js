@@ -1,18 +1,18 @@
 /* global c */
 
-// import {} from './audio';
-import { bufferGeom_fromGeom, bufferGeom_create } from './bufferGeom';
-import { camera_create, camera_updateProjectionMatrix } from './camera';
-import { controls_create } from './controls';
-import { entity_update } from './entity';
-import { createMap } from './maps';
-import { mat4_getInverse, mat4_multiplyMatrices } from './mat4';
+// import {} from './audio.js';
+import { bufferGeom_fromGeom, bufferGeom_create } from './bufferGeom.js';
+import { camera_create, camera_updateProjectionMatrix } from './camera.js';
+import { controls_create } from './controls.js';
+import { entity_update } from './entity.js';
+import { createMap } from './maps.js';
+import { mat4_getInverse, mat4_multiplyMatrices } from './mat4.js';
 import {
   object3d_create,
   object3d_traverse,
   object3d_updateMatrixWorld,
-} from './object3d';
-import { pointerLock_create } from './pointerLock';
+} from './object3d.js';
+import { pointerLock_create } from './pointerLock.js';
 import {
   createShaderProgram,
   createFloat32Buffer,
@@ -22,17 +22,17 @@ import {
   setVec3Uniform,
   getAttributeLocations,
   getUniformLocations,
-} from './shader';
+} from './shader.js';
 import {
   vec3_create,
   vec3_multiplyScalar,
   vec3_setFromMatrixPosition,
   vec3_sub,
   vec3_transformDirection,
-} from './vec3';
+} from './vec3.js';
 
-import vert from './shaders/phong_vert.glsl';
-import frag from './shaders/phong_frag.glsl';
+import { vert } from './shaders/phong_vert.glsl.js';
+import { frag } from './shaders/phong_frag.glsl.js';
 
 var gl = c.getContext('webgl');
 

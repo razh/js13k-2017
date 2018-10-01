@@ -1,7 +1,7 @@
-import { box3_create, box3_setFromPoints } from './box3';
-import { geom_create, geom_translate, geom_merge } from './geom';
-import { vec3_create, vec3_addScaledVector } from './vec3';
-import { sample } from './utils';
+import { box3_create, box3_setFromPoints } from './box3.js';
+import { geom_create, geom_translate, geom_merge } from './geom.js';
+import { vec3_create, vec3_addScaledVector } from './vec3.js';
+import { sample } from './utils.js';
 
 var randomPointInTriangle = (vA, vB, vC) => {
   var a = Math.random();

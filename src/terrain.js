@@ -1,9 +1,9 @@
-import { boxGeom_create } from './boxGeom';
-import { $translateY } from './boxTransforms';
-import fbm from './fbm';
-import { translate } from './geom';
-import { vec3_create } from './vec3';
-import { compose } from './utils';
+import { boxGeom_create } from './boxGeom.js';
+import { $translateY } from './boxTransforms.js';
+import fbm from './fbm.js';
+import { translate } from './geom.js';
+import { vec3_create } from './vec3.js';
+import { compose } from './utils.js';
 
 export var terrain_create = (map, scale = vec3_create(1, 1, 1)) => {
   var geoms = [];

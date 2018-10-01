@@ -4,14 +4,14 @@ import {
   box3_intersectsBox,
   box3_setFromObject,
   box3_translate,
-} from './box3';
+} from './box3.js';
 import {
   component_create,
   entity_add,
   entity_filter,
-} from './entity';
-import { object3d_traverse } from './object3d';
-import { ray_create, ray_intersectsMesh } from './ray';
+} from './entity.js';
+import { object3d_traverse } from './object3d.js';
+import { ray_create, ray_intersectsMesh } from './ray.js';
 import {
   vec3_create,
   vec3_add,
@@ -19,7 +19,7 @@ import {
   vec3_multiplyScalar,
   vec3_set,
   vec3_sub,
-} from './vec3';
+} from './vec3.js';
 
 export var BODY_STATIC = 1;
 export var BODY_DYNAMIC = 2;

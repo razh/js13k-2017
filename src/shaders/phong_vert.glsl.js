@@ -1,3 +1,4 @@
+export var vert = `
 precision highp float;
 precision highp int;
 
@@ -17,3 +18,4 @@ void main() {
   gl_Position = projectionMatrix * mvPosition;
   vViewPosition = -mvPosition.xyz;
 }
+`.trim();

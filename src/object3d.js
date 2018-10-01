@@ -4,13 +4,13 @@ import {
   mat4_copy,
   mat4_lookAt,
   mat4_multiplyMatrices,
-} from './mat4';
+} from './mat4.js';
 import {
   quat_create,
   quat_multiply,
   quat_setFromAxisAngle,
   quat_setFromRotationMatrix,
-} from './quat';
+} from './quat.js';
 import {
   vec3_create,
   vec3_add,
@@ -19,7 +19,7 @@ import {
   vec3_X,
   vec3_Y,
   vec3_Z,
-} from './vec3';
+} from './vec3.js';
 
 export var object3d_create = () => {
   return {

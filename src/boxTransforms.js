@@ -1,5 +1,5 @@
-import { geom_translate } from './geom';
-import boxIndices from './boxIndices';
+import { geom_translate } from './geom.js';
+import boxIndices from './boxIndices.js';
 import {
   vec3_create,
   vec3_add,
@@ -12,8 +12,8 @@ import {
   vec3_setY,
   vec3_setZ,
   vec3_subVectors,
-} from './vec3';
-import { rearg } from './utils';
+} from './vec3.js';
+import { rearg } from './utils.js';
 
 var computeCentroid = (geom, indices, vector = vec3_create()) => {
   vec3_set(vector, 0, 0, 0);

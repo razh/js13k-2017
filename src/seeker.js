@@ -1,19 +1,19 @@
-import { box3_create, box3_copy, box3_translate } from './box3';
-import { boxGeom_create } from './boxGeom';
-import { align, $scale, $translateY } from './boxTransforms';
-import { component_create, entity_find } from './entity';
-import { entity_add } from './entity';
-import { geom_clone, geom_merge, geom_translate, scale } from './geom';
-import { material_create } from './material';
-import { mesh_create } from './mesh';
-import { object3d_add, object3d_lookAt } from './object3d';
+import { box3_create, box3_copy, box3_translate } from './box3.js';
+import { boxGeom_create } from './boxGeom.js';
+import { align, $scale, $translateY } from './boxTransforms.js';
+import { component_create, entity_find } from './entity.js';
+import { entity_add } from './entity.js';
+import { geom_clone, geom_merge, geom_translate, scale } from './geom.js';
+import { material_create } from './material.js';
+import { mesh_create } from './mesh.js';
+import { object3d_add, object3d_lookAt } from './object3d.js';
 import {
   physics_add,
   physics_bodies,
   is_physics_component,
   BODY_DYNAMIC,
-} from './physics';
-import { ray_create, ray_intersectBox, ray_intersectObjects } from './ray';
+} from './physics.js';
+import { ray_create, ray_intersectBox, ray_intersectObjects } from './ray.js';
 import {
   vec3_create,
   vec3_addVectors,
@@ -24,8 +24,8 @@ import {
   vec3_normalize,
   vec3_set,
   vec3_subVectors,
-} from './vec3';
-import { compose, sample } from './utils';
+} from './vec3.js';
+import { compose, sample } from './utils.js';
 
 var STATE_SEARCHING = 1;
 var STATE_FOUND = 2;

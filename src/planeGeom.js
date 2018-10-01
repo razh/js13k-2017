@@ -1,4 +1,4 @@
-import { geom_create, geom_push } from './geom';
+import { geom_create, geom_push } from './geom.js';
 
 // THREE.PlaneGeometry on XZ plane.
 export var planeGeom_create = (width, depth, widthSegments = 1, depthSegments = 1) => {

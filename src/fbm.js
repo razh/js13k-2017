@@ -1,4 +1,4 @@
-import { noise2d } from './noise';
+import { noise2d } from './noise.js';
 
 var octaves = 8;
 var period = 16;

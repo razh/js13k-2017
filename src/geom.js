@@ -4,9 +4,9 @@ import {
   vec3_clone,
   vec3_add,
   vec3_multiply,
-} from './vec3';
-import { face3_create, face3_clone } from './face3';
-import { rearg } from './utils';
+} from './vec3.js';
+import { face3_create, face3_clone } from './face3.js';
+import { rearg } from './utils.js';
 
 export var geom_create = () => {
   return {

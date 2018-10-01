@@ -3,7 +3,7 @@ import {
   quat_set,
   quat_normalize,
   quat_multiply,
-} from './quat';
+} from './quat.js';
 
 var pitchQuat = quat_create();
 var yawQuat = quat_create();

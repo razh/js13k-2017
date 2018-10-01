@@ -1,3 +1,4 @@
+export var frag = `
 #extension GL_OES_standard_derivatives : enable
 
 precision highp float;
@@ -136,3 +137,4 @@ void main() {
   float fogFactor = smoothstep(fogNear, fogFar, depth);
   gl_FragColor = vec4(mix(outgoingLight, fogColor, fogFactor), 1.0);
 }
+`.trim();

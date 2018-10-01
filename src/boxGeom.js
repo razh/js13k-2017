@@ -1,4 +1,4 @@
-import { geom_create, geom_push } from './geom';
+import { geom_create, geom_push } from './geom.js';
 
 export var boxGeom_create = (width, height, depth) => {
   var halfWidth = width / 2;

@@ -52,8 +52,8 @@ export var createMap = (gl, scene, camera) => {
   object3d_add(scene, map);
 
   vec3_set(camera.position, 78, 5, 0);
-  camera_lookAt(camera, vec3_create(0, 24, 0));
-  var cameraPhysics = physics_create(mesh_create(boxGeom_create(2, 4, 2)), BODY_DYNAMIC);
+  camera_lookAt(camera, vec3_create(0, 5, 0));
+  var cameraPhysics = physics_create(mesh_create(boxGeom_create(2, 5, 2)), BODY_DYNAMIC);
   entity_add(camera, cameraPhysics);
 
   var cameraObject = object3d_create();

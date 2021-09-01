@@ -49,7 +49,7 @@ scene.fogNear = 1;
 scene.fogFar = 1000;
 
 // Camera
-var camera = camera_create();
+var camera = camera_create(90);
 pointerLock_create(controls_create(camera), c);
 
 var lights = createMap(gl, scene, camera);
